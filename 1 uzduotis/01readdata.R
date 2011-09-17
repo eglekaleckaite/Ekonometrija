@@ -1,6 +1,7 @@
 library(plm)
 library(reshape)
 library(foreach)
+library(ggplot2)
 
 dt <- read.csv("imones5_8_2011_imones.csv")
 
@@ -45,4 +46,79 @@ add.dt <- cbind(dt.old, dt.new)
 
 write.csv(add.dt, "reshaped.csv", row.names = F, na = "")
 
+rm(list = ls())
 #### Read fixed data ####
+dat <- read.csv("reshaped.csv")
+length(dat[is.na(dat)])
+summary(dat)
+prob <- problematic(dat, not = c("nr", "time", "veikla", "grupe",
+                           "nice1", "nace2", "ter"))
+
+problematic <- function(data, not){
+   # Check data for negative, zero and NA values.
+   # Arguments:
+   # data : data.frame where first columns is Country, second -
+   # Year and the rest colnames are variables.
+   # Return:
+   # res: data.frame with Country, Indicator, Problem and Year.
+   # Problem contains "Empty", "Has na", "Has 0" and "Has < 0"
+   #
+  res <- foreach(cc = colnames(data)[!(colnames(data) %in% not)], .combine = rbind) %do%{
+    indicator <- data[, c("nr", "time", cc)]
+    prob <- foreach(C = unique(indicator$nr), .combine = rbind) %do% {
+      gg <- subset(indicator, nr %in% C)
+
+      if(all(is.na(gg[,ncol(gg)]))) {
+        empty <- data.frame(nr = C, Indicator = cc,
+                            Problem = "Empty", time = NA)
+      } else {
+        empty <- data.frame(nr = NULL, Indicator = NULL,
+                              Problem = NULL, time = NULL)
+      }
+
+      has.zero <- data.frame(nr = NULL, Indicator = NULL,
+                               Problem = NULL, time = NULL)
+      has.na <- data.frame(nr = NULL, Indicator = NULL,
+                             Problem = NULL, time = NULL)
+      has.negative <- data.frame(nr = NULL, Indicator = NULL,
+                                 Problem = NULL, time = NULL)
+
+      if (nrow(empty) < 1){
+        gg1 <- na.omit(gg)
+        if (any(gg1[,ncol(gg1)] == 0))
+          has.zero <- data.frame(nr = C, Indicator = cc,
+                                 Problem = "Has 0", time =
+                                 gg1[gg1[,ncol(gg1)] == 0,]$time)
+
+        if (any(is.na(gg[,ncol(gg)])))
+          has.na <- data.frame(nr = C, Indicator = cc,
+                               Problem = "Has na", time =
+                               gg[is.na(gg[,ncol(gg)]),]$time)
+
+        if (any(gg1[,ncol(gg1)] < 0)&&cc!="Inflation")
+          has.negative <- data.frame(nr = C, Indicator = cc,
+                                     Problem = "Has < 0", time =
+                                     gg1[gg1[,ncol(gg1)] < 0,]$time)
+
+      }
+      return(rbind(empty, has.zero, has.na, has.negative))
+    }
+  }
+  return(res)
+}
+
+m.dat <- melt(dat, id=c(1:4,9:11))
+
+
+dt.plot <- foreach(var = c("paj", "dsk", "val", "atlyg")) %do% {
+  dd <- subset(m.dat, variable == var)
+  foreach(C = unique(dd$nr)) %do% {
+    dt.c <- subset(dd, nr == C)
+    qplot(time, value, data = dt.c, geom = "line", colour = "blac",
+  main = paste(var, C))
+  }
+}
+
+pdf("all_ind.pdf", onefile = TRUE, height = 5, width = 10)
+print(dt.plot)
+dev.off()

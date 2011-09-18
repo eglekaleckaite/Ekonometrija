@@ -113,7 +113,7 @@ empty <- subset(prob, Problem == "Empty")$nr
 
 is.dt <- subset(dat, !(nr %in% empty))
 summary(is.dt)
-
+write.csv(is.dt, "is_dt.csv", row.names = F, na = "")
 
 m.dat <- melt(is.dt, id=c(1:4,9:11))
 

@@ -1,0 +1,62 @@
+\documentclass[a4paper]{article}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[L7x]{fontenc}
+\usepackage[T1]{fontenc}
+\usepackage[lithuanian]{babel}
+\title{Ekonometrija \\1 užduotis}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage[pdftex,bookmarks=TRUE]{hyperref}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{bm}
+
+\newcommand{\R}{R}
+
+\begin{document}
+
+\maketitle
+
+<<echo=FALSE, results=hide>>=
+
+rm(list = ls())
+library(plm)
+library(reshape)
+library(foreach)
+library(ggplot2)
+
+dat <- read.csv("reshaped.csv")
+@ 
+Mano nagrinėjama įmonių grupė yra trečia, o endogeninis kintamasis --
+val\_Ax. Prieš pradėdama tolimesnį darbą su duomenimis, iš pradžių
+juos pertvarkiau formatu, kuris būtų tinkamas panelinių duomenų
+analizei su \R{}, t.y. dabar duomenis sudaro 11 stulpelių:
+\begin{verbatim}
+  nr, time, veikla, grupe, paj, dsk, val, atlyg, ter, nace1, nace2
+\end{verbatim}  
+Taigi atsirado papildomas stulpelis su data - $time$, kuriame skaičius
+po kablelio žymi ketvirtį, t.y. x.00 žymi pirmą x metų ketvirtį, x.25
+-- antrą, x.50 -- trečią ir x.75 -- ketvirtą.
+\section{Duomenų aprašymas ir paruošimas}
+Žemiau patektoje lentelėje matyti kiekvienas duomenų stulpelis ir jo
+pagrinės charakteristikos.
+@
+<<echo=FALSE>>=
+summary(dat)
+@
+Stulpeliai $veikla$ ir $grupe$ yra neįdomūs, nes jie yra
+konstantos. Taip pat galima pasakyti, jog duomenys korektiški ženklų
+prasme, t.y. nėra neigiamų reikšmių. Minimalios pajamų, valandų ir
+atlyginimo reikšmės yra 0. Lentelė taip pat parodo ir NA (praleistų)
+reikšmių kiekį kievienam rodikliui.\\
+Iš viso turima 1430 įmonių priklausančių trečiai grupei, tačiau domina
+tik tos, kurių rodiklis $val$ turi bent viena reikšmę per visus metus.
+Kitu atveju, duomenys nesutiks naudingos informacijos.
+@
+\end{document}

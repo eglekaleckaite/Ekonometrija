@@ -53,7 +53,7 @@ length(dat[is.na(dat)])
 summary(dat)
 prob <- problematic(dat, not = c("nr", "time", "veikla", "grupe",
                            "nice1", "nace2", "ter"))
-
+nr <- length(unique(dat$nr))
 problematic <- function(data, not){
    # Check data for negative, zero and NA values.
    # Arguments:
@@ -106,8 +106,16 @@ problematic <- function(data, not){
   }
   return(res)
 }
+prob <- problematic(dat, not = c("nr", "time", "veikla", "grupe",
+                           "nice1", "nace2", "ter", "dsk", "atlyg", "paj"))
+empty <- subset(prob, Problem == "Empty")$nr
 
-m.dat <- melt(dat, id=c(1:4,9:11))
+
+is.dt <- subset(dat, !(nr %in% empty))
+summary(is.dt)
+
+
+m.dat <- melt(is.dt, id=c(1:4,9:11))
 
 
 dt.plot <- foreach(var = c("paj", "dsk", "val", "atlyg")) %do% {

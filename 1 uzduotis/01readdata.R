@@ -2,6 +2,7 @@ library(plm)
 library(reshape)
 library(foreach)
 library(ggplot2)
+library(forecast)
 
 dt <- read.csv("imones5_8_2011_imones.csv")
 
@@ -130,3 +131,32 @@ dt.plot <- foreach(var = c("paj", "dsk", "val", "atlyg")) %do% {
 pdf("all_ind.pdf", onefile = TRUE, height = 5, width = 10)
 print(dt.plot)
 dev.off()
+### IS data
+is.dt <- read.csv("is_dt.csv")
+#source("10code.R")
+
+fm <- formula(val~atlyg+ter+nace1+nace2)
+
+plm.dt <- plm(fm, subset(is.dt, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                  2008.75))), effect = "individual",
+                                  model = "pooling")
+smm.dt <- summary(plm.dt)
+
+#smr <- my.summary(fm, is.dt)
+#pred <- forecast(plm.dt, data = is.dt[, c("atlyg", "ter", "nace1", "nace2")])
+
+#fe <- plm:::fixef.plm(plm.dt)
+#mr <- plm:::pmodel.response(plm.dt)
+
+fitted.plm <- function(obj, data) {
+  coefs <- obj$coef
+  
+  fit <- as.matrix(cbind(1, data[, names(coefs)[-1]])) %*% coefs
+  fit.df <- data.frame(data[, c("nr", "time")], fitted = fit)
+  return(fit.df)
+}
+
+fitted <- fitted.plm(plm.dt, is.dt)
+
+forecasts <- subset(fitted, time %in% c(2008.00, 2008.25, 2008.50,
+                                  2008.75))

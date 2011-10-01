@@ -1,0 +1,367 @@
+\documentclass[a4paper]{article}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\title{Test modelling}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage[pdftex,bookmarks=TRUE]{hyperref}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{bm}
+
+\begin{document}
+
+\maketitle
+
+<<echo=FALSE, results=hide>>=
+
+rm(list = ls())
+library(plm)
+library(foreach)
+library(ggplot2)
+library(gdata)
+library(reshape)
+library(stringr)
+library(Hmisc)
+
+# Set locale to avoid differences in alphabetical order while sorting
+Sys.setlocale(locale = "en_US")
+
+# Read and prepare data
+dt <- read.csv("data/test.csv")
+colnames(dt) <- c("t", "lag.y", "pop", "food.price", "price", "y")
+dt[,"lag.y"][2:nrow(dt)] <- dt[,"y"][1:nrow(dt)-1]
+# Make time series
+dt.ts <- ts(dt, start = 0, freq = 1)
+###################################################################################
+# Modelling
+###################################################################################
+# The simplest regression
+@
+\section{Model for test.xlsx data}
+\subsection{The simplest regression}
+In this subsection the simplest model is presented. The summary of this model is:
+
+<<echo=FALSE, results=hide>>=
+mod1 <- lm(y ~ lag.y + pop + food.price + price, data = dt.ts)
+@ 
+<<echo=FALSE>>= 
+summary(mod1)
+@ 
+Only lag.y is significant. High Adjusted R-squared implies spurious regression. Residuals are good. AIC = 278.0458.
+@
+\subsection{The model with log transformation}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod2 <- lm(log(y) ~ log(lag.y) + log(pop) + log(food.price) + log(price), data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod2)
+@ 
+All coefficients are significant except log(food.price)
+coefficient. Also, high R-squared implies spuriuos
+regression. Residuals similar to AR(2) proces. AIC = -266.2114. 
+Removing insignificant variables does not improve the results.
+@
+
+\subsection{The model with diff transformation}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod3 <- lm(diff(y) ~ diff(lag.y) + diff(pop) + diff(food.price) + diff(price), data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod3)
+@ 
+Only lag.y coefficient is significant. R-squared is
+normal. Residuals similar to ARMA(1,1) process. AIC = 316.3956.
+Removing insignificant variables does not improve the situation.
+@
+
+\subsection{The model with diff(log) transformation}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod4 <- lm(diff(log(y)) ~ diff(log(lag.y)) + diff(log(pop)) + diff(log(food.price)) + diff(log(price)), data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod4)
+@ 
+food.price and price coefficients are insignificant. R-squared is
+high. Residuals implies ARMA(5,1) process. AIC = -291.7023.
+@
+
+\subsection{The simple model with trend}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod5 <- lm(y ~ t + lag.y + pop + food.price + price, data = dt)
+@ 
+<<echo=FALSE>>=                         
+summary(mod5)
+@ 
+High R-squared implies spuriuos regression. All coefficients are
+insignificant except lag.y. Residuals are good. AIC = 278.7637.
+@
+
+\subsection{The log model with trend}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod6 <- lm(log(y) ~ t + log(lag.y) + log(pop) + log(food.price) + log(price), data = dt)
+@ 
+<<echo=FALSE>>=                         
+summary(mod6)
+@ 
+High R-squared. All coefficients are insignificant except
+log(price). Residuals is similar to MA(2) process. AIC = -294.0282.
+@
+
+\subsection{The diff(log) model with trend}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod8 <- lm(diff(log(y)) ~ log(t[-1]) + diff(log(lag.y)) + diff(log(pop)) + diff(log(food.price)) + diff(log(price)), data = dt)
+@ 
+<<echo=FALSE>>=                         
+summary(mod8)
+@ 
+High R-squared. All coefficients are significant except
+price and food.price. Residuals is similar to ARMA(1,1) process. AIC = -295.184.
+@
+
+\subsection{The diff-level model}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod9 <- lm(y - lag.y ~ pop + food.price + price, data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod9)
+@ 
+Intecept and food.price insignificant. Low R-squared. Residuals similar to AR(1) proces. AIC = 363.6082
+@
+
+<<echo=FALSE, results=hide>>=
+mod9 <- lm(y - lag.y ~ pop + price, data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod9)
+@ 
+Removing food.price helps for other variables significance, but
+residuals are similar to AR(1) process.Low R-squared. AIC = 365.2914.
+@
+
+\subsection{The simplest model without food.price}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod10 <- lm(y ~ lag.y + pop + price, data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod10)
+@ 
+Only lag.y coefficient is significant. According to high Adjusted
+R-squared, it is spurious regression. Residuals are good. AIC = 276.4532.
+@
+
+<<echo=FALSE, results=hide>>=
+mod10 <- lm(y ~ lag.y + pop, data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod10)
+@ 
+Removing price helps. Residuals are good. AIC = 274.6676.
+@
+
+<<echo=FALSE, results=hide>>=
+###################################################################################
+##### Other data ##############
+###################################################################################
+# Set locale to avoid differences in alphabetical order while sorting
+Sys.setlocale(locale = "en_US")
+
+# Read and prepare data
+dt <- read.csv("data/test2.csv")
+colnames(dt) <- c("pop", "food.price", "price", "y")
+dt <- data.frame(t = c(1:(nrow(dt)-1)), dt[-1,], lag.y = dt[,"y"][1:(nrow(dt)-1)])
+# Make time series
+dt.ts <- ts(dt, start = 1, freq = 1)
+@ 
+\section{Model for test2.xlsx data}
+\subsection{The simplest regression}
+In this subsection the simplest model is presented. The summary of this model is:
+
+<<echo=FALSE, results=hide>>=
+mod1 <- lm(y ~ lag.y + pop + food.price + price, data = dt.ts)
+@ 
+<<echo=FALSE>>= 
+summary(mod1)
+@ 
+There are no significant coefficients. Low Adjusted R-squared value. Residuals are good. AIC = 23.46008.
+@
+<<echo=FALSE, results=hide>>=
+mod1 <- lm(y ~ pop, data = dt.ts)
+@ 
+<<echo=FALSE>>= 
+summary(mod1)
+@ 
+Removing insignificant variables helps, but now y depends just on
+pop. Low Adjusted R-squared
+value. Residuals are white noise accoring to acf and pacf functions. AIC = 19.8756.
+@
+
+\subsection{The model with log transformation}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod2 <- lm(log(y) ~ log(lag.y) + log(pop) + log(food.price) + log(price), data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod2)
+@ 
+Only intercept is significant. Also, low R-squared value. Residuals are white noise accoring to acf and pacf functions. AIC = -61.09453.
+@
+
+<<echo=FALSE, results=hide>>=
+mod2 <- lm(log(y) ~ log(pop), data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod2)
+@ 
+Removing insignificant variables helps, but now y depends just on
+pop. Low Adjusted R-squared
+value. Residuals are white noise accoring to acf and pacf functions. AIC = -63.67464.
+@
+
+\subsection{The model with diff transformation}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod3 <- lm(diff(y) ~ diff(lag.y) + diff(pop) + diff(food.price) + diff(price), data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod3)
+@ 
+Only lag.y coefficient is significant. R-squared is extremely low. Residuals similar to AR(3) process. AIC = 45.20615.
+Removing insignificant variables does not help. Low Adjusted R-squared
+value.
+@
+
+\subsection{The model with diff(log) transformation}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod4 <- lm(diff(log(y)) ~ diff(log(lag.y)) + diff(log(pop)) + diff(log(food.price)) + diff(log(price)), data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod4)
+@ 
+Only lag.y coefficient is significant. Residuals are white noise accoring to acf and pacf functions. R-squared is extremely low. AIC = -35.02481.
+Removing insignificant variables does not help. Low Adjusted
+R-squared value.
+@
+
+\subsection{The simple model with trend}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod5 <- lm(y ~ t + lag.y + pop + food.price + price, data = dt)
+@ 
+<<echo=FALSE>>=                         
+summary(mod5)
+@ 
+There are no significant coefficients. Low Adjusted R-squared value.
+Residuals are white noise accoring to acf and pacf functions.
+AIC = 22.63786.
+@
+<<echo=FALSE, results=hide>>=
+# Model with trend simple
+mod5 <- lm(y ~ t  , data = dt)
+@ 
+<<echo=FALSE>>=                         
+summary(mod5)
+@ 
+Removing insignificant variables helps, but now y depends just on
+time. Low Adjusted R-squared
+value. Residuals are white noise accoring to acf and pacf
+functions. AIC = 18.64385.
+@
+
+
+\subsection{The log model with trend}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod6 <- lm(log(y) ~ t + log(lag.y) + log(pop) + log(food.price) + log(price), data = dt)
+@ 
+<<echo=FALSE>>=                         
+summary(mod6)
+@ 
+There are no significant coefficients. Low Adjusted R-squared
+value. Residuals are white noise accoring to acf and pacf functions. AIC = -60.26429.
+@
+<<echo=FALSE, results=hide>>=
+mod6 <- lm(log(y) ~ t , data = dt)
+@ 
+<<echo=FALSE>>=                         
+summary(mod6)
+@ 
+Removing insignificant variables helps, but now y depends just on
+time. Low Adjusted R-squared
+value. Residuals are white noise accoring to acf and pacf functions. AIC = -63.60471.
+@
+
+\subsection{The diff(log) model with trend}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod8 <- lm(diff(log(y)) ~ log(t[-1]) + diff(log(lag.y)) + diff(log(pop)) + diff(log(food.price)) + diff(log(price)), data = dt)
+@ 
+<<echo=FALSE>>=                         
+summary(mod8)
+@ 
+Only lag.y coefficient is significant. Residuals are white noise
+accoring to acf and pacf functions. R-squared is extremely low.
+AIC = -33.46517.
+Removing insignificant variables does not help. Low Adjusted R-squared
+value.
+@
+
+\subsection{The diff-level model}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod9 <- lm(y - lag.y ~ pop + food.price + price, data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod9)
+@ 
+There are no significant coefficients. Low R-squared. Residuals
+similar to ARMA(1,1) proces. AIC = 53.04547. Removing insignificant 
+variables does not help. Low Adjusted R-squared
+value.
+@
+
+\subsection{The simplest model without food.price}
+The summary of the model:
+
+<<echo=FALSE, results=hide>>=
+mod10 <- lm(y ~ lag.y + pop + price, data = dt.ts)
+@ 
+<<echo=FALSE>>=                         
+summary(mod10)
+@ 
+There are no significant coefficients. Low R-squared. Residuals are white noise
+accoring to acf and pacf functions. AIC = 53.04547.
+@
+\end{document}

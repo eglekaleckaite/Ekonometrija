@@ -1,0 +1,125 @@
+\documentclass[a4paper]{article}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[L7x]{fontenc}
+\usepackage[T1]{fontenc}
+\usepackage[lithuanian]{babel}
+\title{Ekonometrija \\1 užduotis}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage[pdftex,bookmarks=TRUE]{hyperref}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{bm}
+
+\newcommand{\R}{R}
+
+\begin{document}
+
+\maketitle
+
+<<echo=FALSE, results=hide>>=
+
+rm(list = ls())
+library(plm)
+library(reshape)
+library(foreach)
+library(ggplot2)
+
+dat <- read.csv("reshaped.csv")
+@ 
+Mano nagrinėjama įmonių grupė yra trečia, o endogeninis kintamasis --
+val\_Ax. Prieš pradėdama tolimesnį darbą su duomenimis, iš pradžių
+juos pertvarkiau formatu, kuris būtų tinkamas panelinių duomenų
+analizei su \R{}, t.y. dabar duomenis sudaro 11 stulpelių:
+\begin{verbatim}
+  nr, time, veikla, grupe, paj, dsk, val, atlyg, ter, nace1, nace2
+\end{verbatim}  
+\\
+Taigi atsirado papildomas stulpelis su data - $time$, kuriame skaičius
+po kablelio žymi ketvirtį, t.y. x.00 žymi pirmą x metų ketvirtį, x.25
+-- antrą, x.50 -- trečią ir x.75 -- ketvirtą.
+\section{Duomenų aprašymas ir paruošimas}
+Žemiau patektoje lentelėje matyti kiekvienas duomenų stulpelis ir jo
+pagrinės charakteristikos.
+@
+<<echo=FALSE>>=
+summary(dat)
+@
+\\
+Stulpeliai $veikla$ ir $grupe$ yra neįdomūs, nes jie yra
+konstantos. Taip pat galima pasakyti, jog duomenys korektiški ženklų
+prasme, t.y. nėra neigiamų reikšmių. Minimalios pajamų, valandų ir
+atlyginimo reikšmės yra 0. Lentelė taip pat parodo ir NA (praleistų)
+reikšmių kiekį kievienam rodikliui.\\
+Iš viso turima 1430 įmonių priklausančių trečiai grupei, tačiau domina
+tik tos, kurių rodiklis $val$ turi bent viena reikšmę per visus metus.
+Kitu atveju, duomenys nesutiks naudingos informacijos. Tokių įmonių
+yra 651:
+@
+<<echo=FALSE, results=hide>>=
+problematic <- function(data, not){
+   # Check data for negative, zero and NA values.
+   # Arguments:
+   # data : data.frame where first columns is Country, second -
+   # Year and the rest colnames are variables.
+   # Return:
+   # res: data.frame with Country, Indicator, Problem and Year.
+   # Problem contains "Empty", "Has na", "Has 0" and "Has < 0"
+   #
+  res <- foreach(cc = colnames(data)[!(colnames(data) %in% not)], .combine = rbind) %do%{
+    indicator <- data[, c("nr", "time", cc)]
+    prob <- foreach(C = unique(indicator$nr), .combine = rbind) %do% {
+      gg <- subset(indicator, nr %in% C)
+
+      if(all(is.na(gg[,ncol(gg)]))) {
+        empty <- data.frame(nr = C, Indicator = cc,
+                            Problem = "Empty", time = NA)
+      } else {
+        empty <- data.frame(nr = NULL, Indicator = NULL,
+                              Problem = NULL, time = NULL)
+      }
+
+      has.zero <- data.frame(nr = NULL, Indicator = NULL,
+                               Problem = NULL, time = NULL)
+      has.na <- data.frame(nr = NULL, Indicator = NULL,
+                             Problem = NULL, time = NULL)
+      has.negative <- data.frame(nr = NULL, Indicator = NULL,
+                                 Problem = NULL, time = NULL)
+
+      if (nrow(empty) < 1){
+        gg1 <- na.omit(gg)
+        if (any(gg1[,ncol(gg1)] == 0))
+          has.zero <- data.frame(nr = C, Indicator = cc,
+                                 Problem = "Has 0", time =
+                                 gg1[gg1[,ncol(gg1)] == 0,]$time)
+
+        if (any(is.na(gg[,ncol(gg)])))
+          has.na <- data.frame(nr = C, Indicator = cc,
+                               Problem = "Has na", time =
+                               gg[is.na(gg[,ncol(gg)]),]$time)
+
+        if (any(gg1[,ncol(gg1)] < 0)&&cc!="Inflation")
+          has.negative <- data.frame(nr = C, Indicator = cc,
+                                     Problem = "Has < 0", time =
+                                     gg1[gg1[,ncol(gg1)] < 0,]$time)
+
+      }
+      return(rbind(empty, has.zero, has.na, has.negative))
+    }
+  }
+  return(res)
+}
+prob <- problematic(dat, not = c("nr", "time", "veikla", "grupe",
+                           "nice1", "nace2", "ter", "dsk", "atlyg", "paj"))
+empty <- subset(prob, Problem == "Empty")$nr
+@ 
+<<echo=FALSE>>=
+empty
+@
+\end{document}

@@ -1,0 +1,38 @@
+\documentclass[a4paper]{article}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\title{Ekonometrija 1 uduotis}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage[pdftex,bookmarks=TRUE]{hyperref}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{bm}
+
+\begin{document}
+
+\maketitle
+
+<<echo=FALSE, results=hide>>=
+
+rm(list = ls())
+library(plm)
+library(reshape)
+library(foreach)
+library(ggplot2)
+
+dat <- read.csv("reshaped.csv")
+ 
+
+<<echo=FALSE>>=
+summary(dat)
+
+@
+\end{document}

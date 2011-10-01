@@ -1,0 +1,138 @@
+\documentclass[a4paper]{article}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[L7x]{fontenc}
+\usepackage[T1]{fontenc}
+\usepackage[lithuanian]{babel}
+\title{Ekonometrija \\1 užduotis}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage[pdftex,bookmarks=TRUE]{hyperref}
+\usepackage{rotating}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage{calc}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{bm}
+
+\newcommand{\R}{R}
+
+\usepackage[noae]{Sweave}
+\begin{document}
+
+\maketitle
+
+Mano nagrinėjama įmonių grupė yra trečia, o endogeninis kintamasis --
+val\_Ax. Prieš pradėdama tolimesnį darbą su duomenimis, iš pradžių
+juos pertvarkiau formatu, kuris būtų tinkamas panelinių duomenų
+analizei su \R{}, t.y. dabar duomenis sudaro 11 stulpelių:
+\begin{verbatim}
+  nr, time, veikla, grupe, paj, dsk, val, atlyg, ter, nace1, nace2
+\end{verbatim}  
+
+Taigi atsirado papildomas stulpelis su data - $time$, kuriame skaičius
+po kablelio žymi ketvirtį, t.y. x.00 žymi pirmą x metų ketvirtį, x.25
+-- antrą, x.50 -- trečią ir x.75 -- ketvirtą.
+\section{Duomenų aprašymas ir paruošimas}
+Žemiau patektoje lentelėje matyti kiekvienas duomenų stulpelis ir jo
+pagrinės charakteristikos.
+\begin{Schunk}
+\begin{Soutput}
+       nr             time          veikla       grupe        paj          
+ Min.   :  530   Min.   :2005   Min.   :70   Min.   :3   Min.   :       0  
+ 1st Qu.: 4246   1st Qu.:2006   1st Qu.:70   1st Qu.:3   1st Qu.:   20199  
+ Median : 6520   Median :2007   Median :70   Median :3   Median :  161270  
+ Mean   : 6645   Mean   :2007   Mean   :70   Mean   :3   Mean   : 1013081  
+ 3rd Qu.: 9278   3rd Qu.:2008   3rd Qu.:70   3rd Qu.:3   3rd Qu.:  551697  
+ Max.   :11944   Max.   :2009   Max.   :70   Max.   :3   Max.   :68509767  
+                                                         NA's   :   15460  
+      dsk                val              atlyg              ter        
+ Min.   :   0.500   Min.   :    0.0   Min.   :      0   Min.   : 11.00  
+ 1st Qu.:   2.000   1st Qu.:  711.8   1st Qu.:   2784   1st Qu.: 13.00  
+ Median :   3.000   Median : 1808.0   Median :   7500   Median : 19.00  
+ Mean   :   6.281   Mean   : 3849.4   Mean   :  29180   Mean   : 23.31  
+ 3rd Qu.:   7.000   3rd Qu.: 4369.5   3rd Qu.:  22772   3rd Qu.: 21.00  
+ Max.   : 359.500   Max.   :69208.0   Max.   :3427509   Max.   : 91.00  
+ NA's   :4309.000   NA's   :16368.0   NA's   :   4309   NA's   :352.00  
+     nace1            nace2       
+ Min.   :452100   Min.   : 24000  
+ 1st Qu.:702000   1st Qu.:682000  
+ Median :702000   Median :682000  
+ Mean   :703170   Mean   :665281  
+ 3rd Qu.:702000   3rd Qu.:682000  
+ Max.   :930500   Max.   :960900  
+ NA's   :   288   NA's   :   288  
+\end{Soutput}
+\end{Schunk}
+
+Stulpeliai $veikla$ ir $grupe$ yra neįdomūs, nes jie yra
+konstantos. Taip pat galima pasakyti, jog duomenys korektiški ženklų
+prasme, t.y. nėra neigiamų reikšmių. Minimalios pajamų, valandų ir
+atlyginimo reikšmės yra 0. Lentelė taip pat parodo ir NA (praleistų)
+reikšmių kiekį kievienam rodikliui.\\
+Iš viso turima 1430 įmonių priklausančių trečiai grupei, tačiau domina
+tik tos, kurių rodiklis $val$ turi bent viena reikšmę per visus metus.
+Kitu atveju, duomenys nesutiks naudingos informacijos. Tokių įmonių
+yra 651:
+\begin{Schunk}
+\begin{Soutput}
+  [1]   530   544   552   570   571   574   577   580   591   607   629   683
+ [13]   729   743   748   750   757   807   815   875   889   949  1088  1099
+ [25]  1128  1193  1195  1208  1209  1241  1264  1272  1291  1306  1307  1337
+ [37]  1346  1405  1433  1489  1514  1560  1590  1596  1602  1655  1661  1668
+ [49]  1672  1687  1708  1765  1794  1825  1845  1872  1887  1896  1901  1918
+ [61]  1941  1944  1945  1947  1966  1967  2095  2113  2116  2137  2145  2153
+ [73]  2156  2157  2174  2177  2189  2200  2215  2249  2254  2256  2259  2266
+ [85]  2267  2269  2277  2280  2283  2284  2294  2327  2342  2394  2440  2468
+ [97]  2491  2508  2530  2596  2697  2707  2708  2725  2727  2799  2813  2867
+[109]  2869  2911  2936  2952  2955  2964  2972  2973  2976  2982  2989  3049
+[121]  3139  3165  3181  3200  3203  3206  3208  3230  3305  3313  3351  3361
+[133]  3362  3366  3368  3374  3375  3398  3401  3440  3469  3528  3585  3607
+[145]  3632  3649  3657  3660  3670  3681  3682  3683  3685  3687  3690  3693
+[157]  3696  3731  3759  3761  3789  3795  3830  3896  3942  3972  3978  3988
+[169]  3995  4004  4006  4009  4036  4040  4055  4062  4063  4064  4065  4078
+[181]  4085  4090  4091  4099  4100  4101  4108  4112  4119  4122  4152  4190
+[193]  4229  4243  4273  4325  4455  4481  4483  4517  4533  4564  4574  4591
+[205]  4603  4636  4639  4646  4647  4648  4650  4651  4652  4654  4681  4686
+[217]  4687  4708  4722  4734  4735  4737  4741  4747  4760  4761  4763  4765
+[229]  4775  4776  4779  4791  4800  4807  4818  4820  4824  4847  4853  4867
+[241]  4870  4873  4886  4889  4892  4894  4896  4899  4901  4904  4906  4908
+[253]  4917  4918  4919  4924  4925  4947  4963  4968  4973  4979  5029  5052
+[265]  5053  5057  5060  5116  5118  5151  5162  5169  5175  5212  5224  5228
+[277]  5280  5290  5338  5400  5411  5428  5442  5457  5477  5501  5553  5573
+[289]  5587  5609  5644  5645  5660  5709  5716  5736  5757  5760  5766  5778
+[301]  5802  5825  5840  5845  5896  5903  5904  5971  5992  6012  6024  6025
+[313]  6044  6050  6053  6061  6062  6074  6077  6080  6093  6094  6099  6101
+[325]  6103  6139  6148  6151  6152  6160  6163  6167  6168  6170  6175  6178
+[337]  6179  6182  6190  6200  6201  6206  6209  6214  6218  6245  6248  6251
+[349]  6255  6270  6282  6285  6316  6318  6325  6326  6334  6337  6338  6348
+[361]  6355  6361  6385  6390  6411  6424  6438  6445  6459  6462  6464  6486
+[373]  6534  6539  6542  6548  6554  6570  6571  6592  6641  6653  6746  6768
+[385]  6784  6847  6907  6914  7056  7074  7090  7123  7139  7199  7245  7265
+[397]  7357  7385  7425  7455  7509  7510  7529  7688  7761  7767  7838  7845
+[409]  7868  7887  7889  7890  7954  7955  8017  8020  8041  8068  8073  8085
+[421]  8105  8120  8136  8143  8145  8148  8152  8162  8183  8224  8240  8246
+[433]  8266  8302  8361  8409  8411  8442  8475  8477  8483  8485  8544  8554
+[445]  8588  8594  8605  8643  8694  8700  8733  8734  8740  8742  8766  8769
+[457]  8787  8794  8853  8860  8864  8869  8896  8917  8937  8947  8962  8968
+[469]  8974  8975  8979  9001  9002  9006  9007  9029  9034  9049  9074  9079
+[481]  9087  9088  9089  9090  9096  9103  9112  9114  9120  9122  9129  9145
+[493]  9147  9152  9153  9158  9164  9178  9182  9184  9185  9186  9191  9193
+[505]  9195  9202  9213  9214  9216  9245  9250  9257  9262  9263  9266  9267
+[517]  9277  9278  9281  9282  9284  9310  9336  9341  9356  9391  9400  9413
+[529]  9414  9417  9421  9427  9428  9431  9435  9450  9480  9491  9492  9495
+[541]  9501  9516  9519  9541  9542  9543  9547  9554  9578  9598  9610  9628
+[553]  9630  9631  9674  9683  9684  9716  9718  9731  9733  9753  9754  9760
+[565]  9774  9775  9782  9787  9799  9804  9856  9868  9870  9893  9908 10008
+[577] 10017 10051 10057 10092 10122 10149 10166 10167 10204 10206 10263 10265
+[589] 10285 10311 10320 10350 10381 10398 10416 10440 10465 10477 10492 10535
+[601] 10565 10567 10597 10629 10650 10668 10687 10694 10732 10765 10787 10838
+[613] 10842 10855 10904 10939 10973 10992 10997 11016 11025 11065 11089 11160
+[625] 11167 11283 11374 11382 11409 11438 11452 11468 11489 11612 11707 11720
+[637] 11730 11760 11795 11797 11812 11819 11824 11829 11839 11853 11855 11859
+[649] 11880 11931 11939
+\end{Soutput}
+\end{Schunk}
+\end{document}

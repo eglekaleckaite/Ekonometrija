@@ -1,8 +1,10 @@
+rm(list=ls())
 library(plm)
 library(reshape)
 library(foreach)
 library(ggplot2)
 library(forecast)
+Sys.setlocale(locale="lithuanian")
 
 dt <- read.csv("imones5_8_2011_imones.csv")
 
@@ -114,6 +116,7 @@ empty <- subset(prob, Problem == "Empty")$nr
 
 is.dt <- subset(dat, !(nr %in% empty))
 summary(is.dt)
+is.dt <- sort_df(is.dt, vars = c("nr", "time"))
 write.csv(is.dt, "is_dt.csv", row.names = F, na = "")
 
 m.dat <- melt(is.dt, id=c(1:4,9:11))
@@ -123,30 +126,23 @@ dt.plot <- foreach(var = c("paj", "dsk", "val", "atlyg")) %do% {
   dd <- subset(m.dat, variable == var)
   foreach(C = unique(dd$nr)) %do% {
     dt.c <- subset(dd, nr == C)
-    qplot(time, value, data = dt.c, geom = "line", colour = "blac",
-  main = paste(var, C))
+    qplot(time, value, data = dt.c,
+          geom = "line", main = paste(var, C))+
+            scale_x_continuous("Laikas")+
+            scale_y_continuous("")+scale_color_hue("Legenda")
   }
 }
 
 pdf("all_ind.pdf", onefile = TRUE, height = 5, width = 10)
 print(dt.plot)
 dev.off()
+
+
 ### IS data
 is.dt <- read.csv("is_dt.csv")
 #source("10code.R")
 
-fm <- formula(val~atlyg+ter+nace1+nace2)
-
-plm.dt <- plm(fm, subset(is.dt, !(time %in% c(2008.00, 2008.25, 2008.50,
-                                  2008.75))), effect = "individual",
-                                  model = "pooling")
-smm.dt <- summary(plm.dt)
-
-#smr <- my.summary(fm, is.dt)
-#pred <- forecast(plm.dt, data = is.dt[, c("atlyg", "ter", "nace1", "nace2")])
-
-#fe <- plm:::fixef.plm(plm.dt)
-#mr <- plm:::pmodel.response(plm.dt)
+fm <- formula(val~t+atlyg+ter+nace1+nace2)
 
 fitted.plm <- function(obj, data) {
   coefs <- obj$coef
@@ -155,8 +151,63 @@ fitted.plm <- function(obj, data) {
   fit.df <- data.frame(data[, c("nr", "time")], fitted = fit)
   return(fit.df)
 }
+is.dt$t <- as.numeric(is.dt$time)
 
-fitted <- fitted.plm(plm.dt, is.dt)
+model.data <- subset(is.dt, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))
+## dt.dm <- foreach(ter = na.omit(unique(is.dt$ter)), .combine = cbind) %do% {
+##   dd <- is.dt$ter
+##   dd[dd != ter] <- 0
+##   dd[dd == ter] <- 1
+##   return(dd)
+## }
+## dt.dm[is.na(dt.dm)] <- 0
+## colnames(dt.dm) <- paste("ter", na.omit(unique(is.dt$ter)), sep = "")
 
-forecasts <- subset(fitted, time %in% c(2008.00, 2008.25, 2008.50,
+## fm1 <- formula(paste("val~atlyg+nace1+nace2+",paste(colnames(dt.dm),
+##                                               collapse = "+")))
+## dt.dm <- data.frame(is.dt, dt.dm)
+####################### POOLING #############################################
+plm.dt1 <- plm(fm, model.data, effect = "individual",
+                                  model = "pooling")
+smm.dt1 <- summary(plm.dt1)
+
+#smr <- my.summary(fm, is.dt)
+#pred <- forecast(plm.dt, data = is.dt[, c("atlyg", "ter", "nace1", "nace2")])
+
+#fe <- plm:::fixef.plm(plm.dt)
+#mr <- plm:::pmodel.response(plm.dt)
+
+fit.my1 <- plm:::fitted.plm(plm.dt1)
+
+fitted1 <- fitted.plm(plm.dt1, is.dt)
+
+forecasts1 <- subset(fitted1, time %in% c(2008.00, 2008.25, 2008.50,
                                   2008.75))
+##############################################################################
+errors <- na.omit(data.frame(forecasts1[, -3], Valandos = subset(is.dt,
+                                                 time %in% c(2008.00, 2008.25, 2008.50,
+                                                             2008.75))$val,
+                             Prognoze = forecasts1[, 3],
+                             Paklaida = (subset(is.dt,
+                                             time %in% c(2008.00, 2008.25, 2008.50,
+                                                         2008.75))$val-forecasts1$fitted)))
+
+m.errors <- melt(errors, id = c("nr", "time"))
+m.errors$ID <- m.errors$variable
+m.errors$ID <- gsub("Valandos", "Valandos", m.errors$ID)
+m.errors$ID <- gsub("Prognoze", "Valandos", m.errors$ID)
+m.errors$variable <- gsub("Prognoze", "Prognozë", m.errors$variable)
+m.errors$ID <- gsub("Paklaida", "Skirtumas", m.errors$ID)
+error.plot <- foreach(var = unique(m.errors$nr)) %do% {
+  dd <- subset(m.errors, nr == var)
+  pp <- qplot(time, value, data = dd, geom = "line", colour = variable,
+              main = paste("Ámonës numeris", var))+
+          facet_wrap(~ID, ncol = 1)+scale_x_continuous("Laikas")+
+            scale_y_continuous("Valandos")+scale_color_hue("Legenda")
+  return(pp)
+}
+
+pdf("Valandos_prognoze_skirtumas.pdf", onefile = TRUE, height = 5, width = 10)
+print(error.plot)
+dev.off()

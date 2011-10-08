@@ -24,7 +24,7 @@
 \maketitle
 
 <<echo=FALSE, results=hide>>=
-
+# [noae]
 rm(list = ls())
 library(plm)
 library(reshape)
@@ -51,7 +51,7 @@ pagrinės charakteristikos.
 <<echo=FALSE>>=
 summary(dat)
 @
-\\
+
 Stulpeliai $veikla$ ir $grupe$ yra neįdomūs, nes jie yra
 konstantos. Taip pat galima pasakyti, jog duomenys korektiški ženklų
 prasme, t.y. nėra neigiamų reikšmių. Minimalios pajamų, valandų ir

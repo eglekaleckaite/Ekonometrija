@@ -4,6 +4,7 @@ library(reshape)
 library(foreach)
 library(ggplot2)
 library(forecast)
+Sys.setlocale(locale="lithuanian")
 
 dt <- read.csv("imones5_8_2011_imones.csv")
 
@@ -125,8 +126,10 @@ dt.plot <- foreach(var = c("paj", "dsk", "val", "atlyg")) %do% {
   dd <- subset(m.dat, variable == var)
   foreach(C = unique(dd$nr)) %do% {
     dt.c <- subset(dd, nr == C)
-    qplot(time, value, data = dt.c, geom = "line", colour = "blue",
-  main = paste(var, C))
+    qplot(time, value, data = dt.c,
+          geom = "line", main = paste(var, C))+
+            scale_x_continuous("Laikas")+
+            scale_y_continuous("")+scale_color_hue("Legenda")
   }
 }
 
@@ -139,7 +142,7 @@ dev.off()
 is.dt <- read.csv("is_dt.csv")
 #source("10code.R")
 
-fm <- formula(val~t+atlyg+ter+nace1+nace2)
+fm <- formula(val~t+atlyg+ter+nace2)
 
 fitted.plm <- function(obj, data) {
   coefs <- obj$coef
@@ -185,23 +188,142 @@ forecasts1 <- subset(fitted1, time %in% c(2008.00, 2008.25, 2008.50,
 errors <- na.omit(data.frame(forecasts1[, -3], Valandos = subset(is.dt,
                                                  time %in% c(2008.00, 2008.25, 2008.50,
                                                              2008.75))$val,
-                             PrognozÄ— = forecasts1[, 3],
-                             Error = (subset(is.dt,
+                             Prognoze = forecasts1[, 3],
+                             Paklaida = (subset(is.dt,
                                              time %in% c(2008.00, 2008.25, 2008.50,
                                                          2008.75))$val-forecasts1$fitted)))
 
 m.errors <- melt(errors, id = c("nr", "time"))
 m.errors$ID <- m.errors$variable
 m.errors$ID <- gsub("Valandos", "Valandos", m.errors$ID)
-m.errors$ID <- gsub("PrognozÄ—", "Valandos", m.errors$ID)
-m.errors$ID <- gsub("Error", "Skirtumas", m.errors$ID)
+m.errors$ID <- gsub("Prognoze", "Valandos", m.errors$ID)
+m.errors$variable <- gsub("Prognoze", "Prognozë", m.errors$variable)
+m.errors$ID <- gsub("Paklaida", "Skirtumas", m.errors$ID)
 error.plot <- foreach(var = unique(m.errors$nr)) %do% {
   dd <- subset(m.errors, nr == var)
-  qplot(time, value, data = dd, geom = "line", colour = variable,
-        main = paste("Ä®monÄ—s numeris", var)) + facet_wrap(~ID, ncol = 1)+ opts(legend.title="Legenda") 
-  }
+  pp <- qplot(time, value, data = dd, geom = "line", colour = variable,
+              main = paste("Ámonës numeris", var))+
+          facet_wrap(~ID, ncol = 1)+scale_x_continuous("Laikas")+
+            scale_y_continuous("Valandos")+scale_color_hue("Legenda")
+  return(pp)
 }
 
 pdf("Valandos_prognoze_skirtumas.pdf", onefile = TRUE, height = 5, width = 10)
 print(error.plot)
 dev.off()
+
+##############################################################################
+# With seasonal dummies
+##############################################################################
+
+dt.dm <- foreach(seas = c(0.25, 0.5, 0.75), .combine = cbind) %do% {
+  dd <- is.dt$time - trunc(is.dt$time)
+  dd[dd != seas] <- 0
+  dd[dd == seas] <- 1
+  return(dd)
+}
+colnames(dt.dm) <- paste("s", 2:4, sep = "")
+
+dt.dm <- data.frame(is.dt, dt.dm)
+
+fm.s <- formula(val~t+atlyg+ter+nace2+s2+s3+s4)
+
+model.data1 <- subset(dt.dm, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))
+
+plm.dt.s <- plm(fm.s, model.data1, effect = "individual",
+                                  model = "pooling")
+smm.dt.s <- summary(plm.dt.s)
+
+##############################################################################
+# Pratrinam dar labiau duomenis
+##############################################################################
+
+prob <- problematic(model.data, not = c("nr", "time", "veikla", "grupe",
+                           "nice1", "nace2", "ter", "dsk", "atlyg", "paj"))
+empty <- subset(prob, Problem == "Empty")$nr
+
+short <- ddply(prob, ~nr, function(bb) {
+  if(nrow(subset(bb, Problem == "Has na")) > 8) return(bb)
+  else return(NULL)
+  })
+
+short.nr <- unique(short$nr)
+  
+is.dt.n <- subset(is.dt, !(nr %in% empty))
+summary(is.dt.n)
+is.dt.n <- sort_df(is.dt.n, vars = c("nr", "time"))
+write.csv(is.dt.n, "is_dt_new.csv", row.names = F, na = "")
+
+is.dt.n <- read.csv("is_dt_new.csv")
+
+const <- ddply(is.dt.n, ~nr, function(bb) {
+  if((length(unique(na.omit(bb$val))) == 1)&&(length(na.omit(bb$val)))
+  > 1) return(bb)
+  else return(NULL)
+  })
+
+const.nr <- unique(const$nr)
+
+left <- subset(is.dt.n, !(nr %in% const.nr))
+
+## Model
+fm.l <- formula(val~t+atlyg+ter+nace2)
+
+model.data2 <- subset(is.dt.n, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))
+
+plm.dt.l <- plm(fm.l, model.data2, effect = "individual",
+                                  model = "pooling")
+smm.dt.l <- summary(plm.dt.l)
+
+### statistikos nepagerejo, trinam toliau
+
+long <- subset(left, !(nr %in% short.nr))
+
+m.dat <- melt(long, id=c(1:4,9:11))
+
+
+dt.plot <- foreach(var = "val") %do% {
+  dd <- subset(m.dat, variable == var)
+  foreach(C = unique(dd$nr)) %do% {
+    dt.c <- subset(dd, nr == C)
+    qplot(time, value, data = dt.c,
+          geom = "line", main = paste(var, C))+
+            scale_x_continuous("Laikas")+
+            scale_y_continuous("Valandos")+scale_color_hue("Legenda")
+  }
+}
+
+pdf("valandos_long.pdf", onefile = TRUE, height = 5, width = 10)
+print(dt.plot)
+dev.off()
+
+### NA fill
+long.na <- as.data.frame(na.spline(subset(long, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))))
+
+m.long <- melt(long, id=c(1:4,9:11))
+m.dat <- melt(long.na, id=c(1:4,9:11))
+
+dt.plot <- foreach(var = "val") %do% {
+  dd <- data.frame(subset(m.dat, variable == var), Color = "Filled")
+  dl <- data.frame(subset(m.long, variable == var), Color = "Real")
+  duom <- rbind(dd, dl)
+  foreach(C = unique(duom$nr)) %do% {
+    dt.c <- subset(duom, nr == C)
+    qplot(time, value, data = dt.c,
+          geom = "line", main = paste(var, C), color = Color)+
+            scale_x_continuous("Laikas")+
+            scale_y_continuous("Valandos")+scale_color_hue("Legenda")
+  }
+}
+
+pdf("valandos_long_na.pdf", onefile = TRUE, height = 5, width = 10)
+print(dt.plot)
+dev.off()
+
+##############################################################################
+# Groups by size (dsk)
+##############################################################################
+

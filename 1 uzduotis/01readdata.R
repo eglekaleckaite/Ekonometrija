@@ -142,7 +142,7 @@ dev.off()
 is.dt <- read.csv("is_dt.csv")
 #source("10code.R")
 
-fm <- formula(val~t+atlyg+ter+nace1+nace2)
+fm <- formula(val~t+atlyg+ter+nace2)
 
 fitted.plm <- function(obj, data) {
   coefs <- obj$coef
@@ -209,5 +209,262 @@ error.plot <- foreach(var = unique(m.errors$nr)) %do% {
 }
 
 pdf("Valandos_prognoze_skirtumas.pdf", onefile = TRUE, height = 5, width = 10)
+print(error.plot)
+dev.off()
+
+##############################################################################
+# With seasonal dummies
+##############################################################################
+
+dt.dm <- foreach(seas = c(0.25, 0.5, 0.75), .combine = cbind) %do% {
+  dd <- is.dt$time - trunc(is.dt$time)
+  dd[dd != seas] <- 0
+  dd[dd == seas] <- 1
+  return(dd)
+}
+colnames(dt.dm) <- paste("s", 2:4, sep = "")
+
+dt.dm <- data.frame(is.dt, dt.dm)
+
+fm.s <- formula(val~t+atlyg+ter+nace2+s2+s3+s4)
+
+model.data1 <- subset(dt.dm, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))
+
+plm.dt.s <- plm(fm.s, model.data1, effect = "individual",
+                                  model = "pooling")
+smm.dt.s <- summary(plm.dt.s)
+
+##############################################################################
+# Pratrinam dar labiau duomenis
+##############################################################################
+
+prob <- problematic(model.data, not = c("nr", "time", "veikla", "grupe",
+                           "nice1", "nace2", "ter", "dsk", "atlyg", "paj"))
+empty <- subset(prob, Problem == "Empty")$nr
+
+short <- ddply(prob, ~nr, function(bb) {
+  if(nrow(subset(bb, Problem == "Has na")) > 8) return(bb)
+  else return(NULL)
+  })
+
+short.nr <- unique(short$nr)
+  
+is.dt.n <- subset(is.dt, !(nr %in% empty))
+summary(is.dt.n)
+is.dt.n <- sort_df(is.dt.n, vars = c("nr", "time"))
+save(short, file = "Short.RData")
+save(is.dt.n, file = "is.dt.n.RData")
+
+
+
+const <- ddply(is.dt.n, ~nr, function(bb) {
+  if((length(unique(na.omit(bb$val))) == 1)&&(length(na.omit(bb$val)))
+  > 1) return(bb)
+  else return(NULL)
+  })
+
+const.nr <- unique(const$nr)
+
+left <- subset(is.dt.n, !(nr %in% const.nr))
+save(const, file = "const.RData")
+save(left, file = "left.RData")
+## Model
+fm.l <- formula(val~t+atlyg+ter+nace2)
+
+model.data2 <- subset(is.dt.n, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))
+
+plm.dt.l <- plm(fm.l, model.data2, effect = "individual",
+                                  model = "pooling")
+smm.dt.l <- summary(plm.dt.l)
+
+### statistikos nepagerejo, trinam toliau
+
+long <- subset(left, !(nr %in% short.nr))
+save(long, file = "long.RData")
+m.dat <- melt(long, id=c(1:4,9:11))
+
+
+## dt.plot <- foreach(var = "val") %do% {
+##   dd <- subset(m.dat, variable == var)
+##   foreach(C = unique(dd$nr)) %do% {
+##     dt.c <- subset(dd, nr == C)
+##     qplot(time, value, data = dt.c,
+##           geom = "line", main = paste(var, C))+
+##             scale_x_continuous("Laikas")+
+##             scale_y_continuous("Valandos")+scale_color_hue("Legenda")
+##   }
+## }
+
+## pdf("valandos_long.pdf", onefile = TRUE, height = 5, width = 10)
+## print(dt.plot)
+## dev.off()
+
+### NA fill
+long.na <- as.data.frame(na.spline(subset(long, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))))
+
+## Model
+fm.fil <- formula(val~t+atlyg+ter+nace2)
+
+plm.dt.fil <- plm(fm.fil, long.na, effect = "individual",
+                                  model = "pooling")
+smm.dt.fil <- summary(plm.dt.fil)
+
+## m.long <- melt(long, id=c(1:4,9:11))
+## m.dat <- melt(long.na, id=c(1:4,9:11))
+
+## dt.plot <- foreach(var = "val") %do% {
+##   dd <- data.frame(subset(m.dat, variable == var), Color = "Filled")
+##   dl <- data.frame(subset(m.long, variable == var), Color = "Real")
+##   duom <- rbind(dd, dl)
+##   foreach(C = unique(duom$nr)) %do% {
+##     dt.c <- subset(duom, nr == C)
+##     qplot(time, value, data = dt.c,
+##           geom = "line", main = paste(var, C), color = Color)+
+##             scale_x_continuous("Laikas")+
+##             scale_y_continuous("Valandos")+scale_color_hue("Legenda")
+##   }
+## }
+
+## pdf("valandos_long_na.pdf", onefile = TRUE, height = 5, width = 10)
+## print(dt.plot)
+## dev.off()
+
+# fill nepadejo.
+
+##############################################################################
+# Groups by size (dsk)
+##############################################################################
+hh <- melt(long[, c("nr", "dsk")], id=1, na.rm = TRUE)
+mean.dsk <- cast(hh, nr ~ variable, mean)
+
+qplot(dsk, data = mean.dsk, geom = "histogram", binwidth =2)
+qplot(dsk, data = mean.dsk, geom = "density")
+
+# skaidom i grupes pagal histograma, matosi, kad imones su dsk > 40
+# galim del i viena grupe. toliau 1:5, 5:10, 10:20, 20:40.
+
+gr1 <- subset(mean.dsk, dsk < 5)$nr
+gr2 <- subset(mean.dsk, dsk >= 5 & dsk < 10)$nr
+gr3 <- subset(mean.dsk, dsk >= 10 & dsk < 20)$nr
+gr4 <- subset(mean.dsk, dsk >= 20 & dsk < 40)$nr
+gr5 <- subset(mean.dsk, dsk >= 40)$nr
+
+## Model
+fm <- formula(val~t+atlyg+ter+nace2)
+
+gr.model <- foreach(gr = c("gr1", "gr2", "gr3", "gr4", "gr5")) %do% {
+  datt <- subset(is.dt.n, nr %in% get(gr))
+  plm.dt <- plm(fm, datt, effect = "individual",
+                    model = "pooling")
+  smm.dt <- summary(plm.dt)
+  return(list(Summary = smm.dt))
+}
+names(gr.model) <- c("gr1", "gr2", "gr3", "gr4", "gr5")
+#### siek tiek pagerejo
+
+##############################################################################
+# Groups by size (val)
+##############################################################################
+hh1 <- melt(long[, c("nr", "val")], id=1, na.rm = TRUE)
+mean.val <- cast(hh1, nr ~ variable, mean)
+
+qplot(val, data = mean.val, geom = "histogram", binwidth = 1500)
+qplot(val, data = mean.val, geom = "density")
+
+# skaidom i grupes pagal histograma, matosi, kad imones su val > 20000
+# galim del i viena grupe. toliau 1:5, 5:10, 10:20, 20:40.
+
+gr1 <- subset(mean.val, val < 1500)$nr
+gr2 <- subset(mean.val, val >= 1500 & val < 3000)$nr
+gr3 <- subset(mean.val, val >= 3000 & val < 6000)$nr
+gr4 <- subset(mean.val, val >= 6000 & val < 20000)$nr
+gr5 <- subset(mean.val, val >= 20000)$nr
+
+## Model
+fm <- formula(val~t+atlyg+ter+nace2)
+
+gr.model <- foreach(gr = c("gr1", "gr2", "gr3", "gr4", "gr5")) %do% {
+  datt <- subset(is.dt.n, nr %in% get(gr))
+  plm.dt <- plm(fm, datt, effect = "individual",
+                    model = "pooling")
+  smm.dt <- summary(plm.dt)
+  return(list(Summary = smm.dt))
+}
+names(gr.model) <- c("gr1", "gr2", "gr3", "gr4", "gr5")
+#### siek tiek pagerejo
+
+### nepadejo
+
+##############################################################################
+# System fit
+##############################################################################
+library(systemfit)
+ff <- systemfit(fm, data = long, pooled = TRUE)
+
+##############################################################################
+# LM
+##############################################################################
+load("long.RData")
+
+dt.dm <- foreach(seas = c(0.25, 0.5, 0.75), .combine = cbind) %do% {
+  dd <- long$time - trunc(long$time)
+  dd[dd != seas] <- 0
+  dd[dd == seas] <- 1
+  return(dd)
+}
+colnames(dt.dm) <- paste("s", 2:4, sep = "")
+
+dt.dm <- data.frame(long, dt.dm)
+
+fm <- formula(val~t+I(t^2)+s2+s3+s4+atlyg)
+
+lm.models <- foreach(nn = unique(dt.dm$nr)) %do% {
+  bb <- subset(dt.dm, nr == nn & !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))
+  mod <- lm(fm, data = bb, na.action = na.omit)
+  return(mod)
+}
+names(lm.models) <- unique(dt.dm$nr)
+save(lm.models, file = "lm.models.RData")
+
+forecasts.lm <- foreach(nn = names(lm.models), .combine = rbind) %do% {
+  bb <- subset(dt.dm, nr == nn & (time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))
+  mod <- lm.models[[nn]]
+  forc <- forecast(mod, newdata = bb)
+  return(data.frame(nr=nn, time = c(2008.00, 2008.25, 2008.50,
+                             2008.75), Forecast=as.numeric(forc$mean)))
+  }
+
+neg <- length(which(forecasts.lm$Forecast<0))
+############ errors
+errors <- na.omit(data.frame(forecasts.lm[, -3], Valandos = subset(long,
+                                                 time %in% c(2008.00, 2008.25, 2008.50,
+                                                             2008.75))$val,
+                             Prognoze = forecasts.lm[, 3],
+                             Paklaida = (subset(long,
+                                             time %in% c(2008.00, 2008.25, 2008.50,
+                                                         2008.75))$val-
+                                         forecasts.lm$Forecast)))
+save(errors, file="long.errors.RData")
+m.errors <- melt(errors, id = c("nr", "time"))
+m.errors$ID <- m.errors$variable
+m.errors$ID <- gsub("Valandos", "Valandos", m.errors$ID)
+m.errors$ID <- gsub("Prognoze", "Valandos", m.errors$ID)
+m.errors$variable <- gsub("Prognoze", "Prognozë", m.errors$variable)
+m.errors$ID <- gsub("Paklaida", "Skirtumas", m.errors$ID)
+error.plot <- foreach(var = unique(m.errors$nr)) %do% {
+  dd <- subset(m.errors, nr == var)
+  pp <- qplot(time, value, data = dd, geom = "line", colour = variable,
+              main = paste("Ámonës numeris", var))+
+          facet_wrap(~ID, ncol = 1)+scale_x_continuous("Laikas")+
+            scale_y_continuous("Valandos")+scale_color_hue("Legenda")
+  return(pp)
+}
+
+pdf("Valandos_prognoze_skirtumas_long.pdf", onefile = TRUE, height = 5, width = 10)
 print(error.plot)
 dev.off()

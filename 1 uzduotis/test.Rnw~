@@ -5,6 +5,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[lithuanian]{babel}
 \title{Ekonometrija \\1 užduotis}
+\author{Eglė Kaleckaitė}
 \usepackage{float}
 \usepackage{rotating}
 \usepackage[pdftex,bookmarks=TRUE]{hyperref}
@@ -40,7 +41,6 @@ analizei su \R{}, t.y. dabar duomenis sudaro 11 stulpelių:
 \begin{verbatim}
   nr, time, veikla, grupe, paj, dsk, val, atlyg, ter, nace1, nace2
 \end{verbatim}  
-\\
 Taigi atsirado papildomas stulpelis su data - $time$, kuriame skaičius
 po kablelio žymi ketvirtį, t.y. x.00 žymi pirmą x metų ketvirtį, x.25
 -- antrą, x.50 -- trečią ir x.75 -- ketvirtą.
@@ -57,9 +57,32 @@ konstantos. Taip pat galima pasakyti, jog duomenys korektiški ženklų
 prasme, t.y. nėra neigiamų reikšmių. Minimalios pajamų, valandų ir
 atlyginimo reikšmės yra 0. Lentelė taip pat parodo ir NA (praleistų)
 reikšmių kiekį kievienam rodikliui.\\
+Kadangi kiti rodikliai yra beveik konstantos ir žymi tik priklausymai
+vienai ar kitai grupei, tai mus labiau domina $val$ bei $atlyg$ ir
+$dsk$ priklausomybė. Tai galima pamatyti paveikslėliuose
+\ref{fig:valatlyg} ir \ref{fig:valdsk}. Paveikslėliuose galima
+pastebėti didelę duomenų koncentraciją ties mažesnėmis
+reikšmėmis. Taigi, galima sakyti, jog mažesnių įmonių yra ženkliai
+mažiau nei didelių. Taip pat galime pastebėti ryškią valandų ir
+darbuotojų skaičiaus tiesinę priklausomybę. Būtų keistą, jei būtų
+kitaip. Tačiau tarp atlyginimų ir valandų priklausomybė ne tokia
+aiški, lyg ir galima įžvelgti eksponentinę priklausomybę.
+
+\begin{figure}[here]
+\includegraphics[height=8.5cm]{val_atlyg.pdf}
+\caption{Kintamųjų $val$ ir $atlyg$ sklaidos diagrama}
+\label{fig:valatlyg}
+\end{figure}
+
+\begin{figure}[here]
+\includegraphics[height=8.5cm]{val_dsk.pdf}
+\caption{Kintamųjų $val$ ir $dsk$ sklaidos diagrama}
+\label{fig:valdsk}
+\end{figure}
+
 Iš viso turima 1430 įmonių priklausančių trečiai grupei, tačiau domina
 tik tos, kurių rodiklis $val$ turi bent viena reikšmę per visus metus.
-Kitu atveju, duomenys nesutiks naudingos informacijos. Tokių įmonių
+Kitu atveju, duomenys nesuteiks naudingos informacijos. Tokių įmonių
 yra 651:
 @
 <<echo=FALSE, results=hide>>=
@@ -115,11 +138,297 @@ problematic <- function(data, not){
   }
   return(res)
 }
+fitted.plm <- function(obj, data) {
+  coefs <- obj$coef
+  
+  fit <- as.matrix(cbind(1, data[, names(coefs)[-1]])) %*% coefs
+  fit.df <- data.frame(data[, c("nr", "time")], fitted = fit)
+  return(fit.df)
+}
 prob <- problematic(dat, not = c("nr", "time", "veikla", "grupe",
                            "nice1", "nace2", "ter", "dsk", "atlyg", "paj"))
 empty <- subset(prob, Problem == "Empty")$nr
 @ 
 <<echo=FALSE>>=
 empty
+@ 
+<<echo=FALSE, results=hide>>=
+is.dt <- subset(dat, !(nr %in% empty))
+is.dt$t <- as.numeric(is.dt$time)
+@ 
+Dabar pagrindinės duomenų charakteristikos atrodo taip:
+<<echo=FALSE>>=
+summary(is.dt)
+@ 
+Kad susidaryčiau aiškesnį vaizdą, kokie yra turimi duomenys,
+išsibrėžiau kiekvienos įmonės kiekvieno rodiklio grafikus. Jie
+patalpinti šio dokumento prisegtuke \emph{pdf} formatu, pavadinimu
+\emph{all\_ind.pdf}. Panašu, jog duomenys turi daug tuščių reikšmių ir
+trūkių. Iš pradžių pabandysiu tai ignoruoti ir sudaryti panelinių
+duomenų modelį. Taip pat paruošiu kelis duomenų masyvus, t.y. skelsiu
+duomenis pagal tuščių reikšmių kiekį bei skaidysiu į grupes. Ir
+bandysiu pagerinti rezultatus.
+
+\section{Modeliavimas}
+Kaip jau minėta, pradžioje sudarysiu paprastą panelių duomenų
+modelį. Kadangi kintamieji $nace1$ ir $nace2$ žymi tą patį tik pagal
+skirtingus reikalavimus, pasiliksiu vieną iš jų. Tegul tai būna
+$nace2$. Sudarysiu \emph{pooled} panelinių duomenų modelį
+(\R{} paketas \emph{plm})duomenims iki 2008 metų:
+@
+<<echo=FALSE, results=hide>>=
+fm <- formula(val~t+dsk+atlyg+ter+nace1)
+@
+<<echo=FALSE>>=
+print(fm)
+@
+<<echo=FALSE, results=hide>>=
+model.data <- subset(is.dt, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))
+plm.dt1 <- plm(fm, model.data, effect = "individual",
+                                  model = "pooling")
+smm.dt1 <- summary(plm.dt1)
+@
+<<echo=FALSE>>=
+print(smm.dt1)
+@
+Du kintamieji yra nereikšmingi ($ter$ ir $nace1$), tačiau
+jei jie nereikšmingi, jų dydžiai ir neturės reikšmingos įtakos
+endogeniniam kintamąjam. Tokių kintamųjų pašalinti nėra prasmės, tuo
+labiau, kai nežinoma, ar gautas modelis geras. Gerų rezultatų nerodo
+ir paklaidų kvadratų sumos. Dar galima pastebėti, jog laiko įtaka yra
+neigiama. Būtų galima logaritmuoti $atlyg$, tačiau šis kintamasis
+turi nulinių reikšmių. Pabandžiau įtraukti teritorijos žymimuosius
+kintamuosius, tačiau rezultatai tik pablogejo. Taip pat galima bandyti įtraukti sezoninius
+žymimuosius kintamuosius. Tai ir padarysiu. Įrauksiu tris žymimuosius
+kintamuosius $s2$, $s3$ ir $s4$, kurie žymės antrą, trečią ir ketvirtą
+sezonus atitinkamai.
+@
+<<echo=FALSE, results=hide>>=
+dt.dm <- foreach(seas = c(0.25, 0.5, 0.75), .combine = cbind) %do% {
+  dd <- is.dt$time - trunc(is.dt$time)
+  dd[dd != seas] <- 0
+  dd[dd == seas] <- 1
+  return(dd)
+}
+colnames(dt.dm) <- paste("s", 2:4, sep = "")
+
+dt.dm <- data.frame(is.dt, dt.dm)
+ 
+fm.s <- formula(val~t+s2+s3+s4+dsk+atlyg+ter+nace1)
+@ 
+<<echo=FALSE>>=
+print(fm.s)
+@
+<<echo=FALSE, results=hide>>=
+model.data1 <- subset(dt.dm, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))
+
+plm.dt.s <- plm(fm.s, model.data1, effect = "individual",
+                                  model = "pooling")
+smm.dt.s <- summary(plm.dt.s)
+@
+<<echo=FALSE>>=
+print(smm.dt.s)
+@ 
+Matome, kad ir $s3$ yra reikšmingas. Nepašalinu ir likusių
+kintamųjų. Pabandysiu padaryti šio modelio prognozę. Prognozių
+grafikai patalpinti šio dokumento prisegtuke pavadinimu
+\emph{Valandos\_prognoze\_skirtumas\_zym.pdf}. Iš paveiklslėlių
+matyti, jog gan dažnai prognozė daug nenuklysta nuo realių duomenų
+(turint omenyje, jog dirbama su gan dideliais dydžiais). Tačiau yra ir
+nemažai atvejų, kai prognozė labai nutolsta nuo realybės. Skirtumai
+tarp valandų ir jų prognozės pavaizduoti paveikslėliuose
+\ref{fig:skzym} ir \ref{fig:skzymb}. Reikia pastebėti, jog
+nepavaizduotos tos reikšmės, kurioms nebuvo realių duomenų, nes
+palyginimui jos nereikšmingos. Tačiau taip pat svarbu paminėti, jog
+išprognozuotų reikšmių buvo daugiau nei realiųjų.
+
+\begin{figure}[here]
+\includegraphics[height=8.5cm]{Skirtumas_zym.pdf}
+\caption{Taškais pavaizduotos visų įmonių skirtumai tarp valandų ir
+  jų prognozės laike}
+\label{fig:skzym}
+\end{figure}
+
+\begin{figure}[here]
+\includegraphics[height=8.5cm]{Skirtumas_zym_boxplot.pdf}
+\caption{Skirtumų tarp valandų ir jų prognozių boxplot}
+\label{fig:skzymb}
+\end{figure}
+
+Bendras įspūdis nėra blogas, bet pabandysiu prognozes
+pagerinti. Kadangi duomenis sudaro įvairaus ilgio valandų laiko eilutės, būtų
+galima tokias eilutes skirstyti į ilgesnes ir trumpesnes pagal
+kintamąjį $val$. Ilgesnėmis laikysiu eilutes, kurias sudaro bent 4
+netuščios reikšmės, visa kita bus laikoma kaip trumpos laiko eilutės. 
+Taip pat pastebėjau, jog valandas sudaro ir pastovios
+laiko eilutės (konstantos). Konstantas prognozuoti lengva, tam
+nereikia sudaryti regresijos, užtenka pratęsti tą pačia reikšmę. Tokių
+yra 9:
+@
+<<echo=FALSE, results=hide>>=
+load("const.nr.RData")
+<<echo=FALSE>>=
+print(const.nr)
+@ 
+<<echo=FALSE, results=hide>>=
+load("const.RData")
+const.fit <- ddply(const, ~nr, function(bb) {
+  bb$val <- unique(na.omit(bb$val))
+  return(bb[, c("nr", "time", "val")])
+  })
+errors.const <- subset(data.frame(const.fit[, -3], Valandos = const$val,
+                             Prognoze = const.fit[, 3],
+                             Skirtumas = const$val-
+                                          const.fit$val), 
+                       time %in% c(2008.00, 2008.25, 2008.50,
+                                  2008.75))
+@ 
+Jau anksčiau sudarytas modelis, tik ilgesnėms duomenų laiko eilutems:
+@ 
+<<echo=FALSE, results=hide>>=
+load("long.RData")
+plm.long <- plm(fm.s, long, effect = "individual",
+                model = "pooling")
+smm.long <- summary(plm.long)
+@ 
+<<echo=FALSE>>=
+print(smm.long)
+@
+<<echo=FALSE, results=hide>>=
+fitted.long <- fitted.plm(plm.long, long)
+
+forecasts.long <- subset(fitted.long, time %in% c(2008.00, 2008.25, 2008.50,
+                                  2008.75))
+errors.long <- data.frame(forecasts.long[, -3], Valandos = subset(long,
+                                                 time %in% c(2008.00, 2008.25, 2008.50,
+                                                             2008.75))$val,
+                             Prognoze = forecasts.long[, 3],
+                             Skirtumas = (subset(long,
+                                             time %in% c(2008.00, 2008.25, 2008.50,
+                                                         2008.75))$val-
+                                          forecasts.long$fitted))
+@
+Rezultatai tik pablogėjo. Nors įmonių skaičius mažesnis, t.y. paklaidų
+kvadratų sumos padidėjo.
+@
+Nors ir su ilgesnėmis laiko eilutėmis, duomenys vistiek turi labai
+daug tuščių reikšmių. Todėl pagalvojau, kad juos galima užpildyti
+pasitelkus \R{} f-ją \emph{na.spline}. Rezultatai pateikti
+žemiau. Kintamųjų reikšmingumas sumažėjęs ir rezultatai tik pablogėjo.
+@
+<<echo=FALSE, results=hide>>=
+long.na <- as.data.frame(na.spline(subset(long, !(time %in% c(2008.00, 2008.25, 2008.50,
+                                          2008.75)))))
+plm.dt.fil <- plm(fm.s, long.na, effect = "individual",
+                                  model = "pooling")
+smm.dt.fil <- summary(plm.dt.fil)
+@ 
+<<echo=FALSE>>=
+print(smm.dt.fil)
+@
+Taip pat tą patį modelį pritaikiau ir trumpoms laiko eilutėms:
+@
+<<echo=FALSE, results=hide>>=
+load("short.RData")
+plm.short <- plm(fm.s, short, effect = "individual",
+                model = "pooling")
+smm.short <- summary(plm.short)
+@ 
+<<echo=FALSE>>=
+print(smm.short)
+@ 
+Rezultatai taip pat nieko gero nežada. Bet ir nėra, ko norėti, kai
+laiko eilutės trumpesnės negu 4.
+@
+<<echo=FALSE, results=hide>>=
+fitted.short <- fitted.plm(plm.short, short)
+
+forecasts.short <- subset(fitted.short, time %in% c(2008.00, 2008.25, 2008.50,
+                                  2008.75))
+errors.short <- data.frame(forecasts.short[, -3], Valandos = subset(short,
+                                                 time %in% c(2008.00, 2008.25, 2008.50,
+                                                             2008.75))$val,
+                             Prognoze = forecasts.short[, 3],
+                             Skirtumas = (subset(short,
+                                             time %in% c(2008.00, 2008.25, 2008.50,
+                                                         2008.75))$val-
+                                          forecasts.short$fitted))
+
+@
+Dar pabandysiu pagerinti ilgesniųjų laiko eilučių prognozes. Skaidysiu
+duomenis į keles grupes pagal įmonių dydį, t.y. $dsk$. Tai darysiu
+pagal histogramą \ref. Pirmąją grupę sudarys įmonės su mažesniu nei 5
+darbuotojų skaičiumi, antrąją -- 5:10  darbuotojų, trečiąją -- 10:20,
+ketvirtąją -- 20:40 ir penktąją įmonės su 40 ir daugiau darbuotojų.
+
+\begin{figure}[here]
+\includegraphics[height=8.5cm]{hist_dsk.pdf}
+\caption{Ilgesniųjų laiko eilučių darbuotojų skaičiaus histograma}
+\label{fig:histdsk}
+\end{figure}
+@
+<<echo=FALSE, results=hide>>=
+hh <- melt(long[, c("nr", "dsk")], id=1, na.rm = TRUE)
+mean.dsk <- cast(hh, nr ~ variable, mean)
+gr1 <- subset(mean.dsk, dsk < 5)$nr
+gr2 <- subset(mean.dsk, dsk >= 5 & dsk < 10)$nr
+gr3 <- subset(mean.dsk, dsk >= 10 & dsk < 20)$nr
+gr4 <- subset(mean.dsk, dsk >= 20 & dsk < 40)$nr
+gr5 <- subset(mean.dsk, dsk >= 40)$nr
+gr.model <- foreach(gr = c("gr1", "gr2", "gr3", "gr4", "gr5")) %do% {
+  datt <- subset(long, nr %in% get(gr))
+  plm.dt <- plm(fm.s, datt, effect = "individual",
+                    model = "pooling")
+  smm.dt <- summary(plm.dt)
+  return(list(Summary = smm.dt, plm = plm.dt))
+}
+names(gr.model) <- c("gr1", "gr2", "gr3", "gr4", "gr5")
+@ 
+<<echo=FALSE>>=
+print(gr.model)
+@ 
+<<echo=FALSE, results=hide>>=
+errors.gr <- subset(foreach(gr = c("gr1", "gr2", "gr3", "gr4", "gr5"), .combine
+                  = rbind) %do% {
+  datt <- subset(long, nr %in% get(gr))
+  plm.dt <- gr.model[[gr]][[2]]
+  fit.gr <- fitted.plm(plm.dt, datt)
+  gr.err <- data.frame(fit.gr[, -3], Valandos = datt$val,
+                             Prognoze = fit.gr[, 3],
+                             Skirtumas = (datt$val-
+                                          fit.gr$fitted))
+  return(gr.err)
+},
+                               time %in% c(2008.00, 2008.25, 2008.50,
+                                           2008.75))
+@ 
+Padariusi prognozes ir suskaičiavusi jų skirtumą nuo realių darbo
+valandų, gavau, jog skaidymas į grupes pagerino absoliutinių skirtumų
+sumą, t.y:
+<<echo=TRUE>>=
+sum(abs(errors.long$Skirtumas), na.rm = TRUE)
+sum(abs(errors.gr$Skirtumas), na.rm = TRUE)
+@ 
+<<echo=FALSE, results=hide>>=
+all.sk <- rbind(errors.short, errors.const, errors.gr)
+all.sk <- sort_df(all.sk, c("nr", "time"))
+write.csv(all.sk, "Prognozes.csv", na = "", row.names = FALSE)
+@ 
+Dar bandžiau padaryti paprastą tiesinę regresiją kiekvienai įmonei
+atskirai. Tačiau geresnių rezultatų gauti nepavyko. Galutines
+prognozes, bei skirtumus nuo realių valandų galima pamatyti šio
+dokumento prisegtuke pavadinimu \emph{Prognozes.csv}.
+
+\section{Išvados}
+Labai gerų rezultatų gauti nepavyko. To priežąstys gali būti:
+\begin{itemize}
+  \item blogai sudarytas modelis
+  \item per didelė įmonių įvairovė
+  \item pasirinkti ne tie metodai
+  \item ir k.t.
+\end{itemize}
+
 @
 \end{document}

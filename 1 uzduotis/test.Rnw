@@ -17,6 +17,7 @@
 \usepackage{graphicx}
 \usepackage{lmodern}
 \usepackage{bm}
+\usepackage{epsfig}
 
 \newcommand{\R}{R}
 
@@ -33,6 +34,7 @@ library(foreach)
 library(ggplot2)
 
 dat <- read.csv("reshaped.csv")
+Sys.setlocale(locale="lithuanian")
 @ 
 Mano nagrinėjama įmonių grupė yra trečia, o endogeninis kintamasis --
 val\_Ax. Prieš pradėdama tolimesnį darbą su duomenimis, iš pradžių
@@ -40,11 +42,16 @@ juos pertvarkiau formatu, kuris būtų tinkamas panelinių duomenų
 analizei su \R{}, t.y. dabar duomenis sudaro 11 stulpelių:
 \begin{verbatim}
   nr, time, veikla, grupe, paj, dsk, val, atlyg, ter, nace1, nace2
-\end{verbatim}  
+\end{verbatim}
+@
+
 Taigi atsirado papildomas stulpelis su data - $time$, kuriame skaičius
 po kablelio žymi ketvirtį, t.y. x.00 žymi pirmą x metų ketvirtį, x.25
 -- antrą, x.50 -- trečią ir x.75 -- ketvirtą.
-\section{Duomenų aprašymas ir paruošimas}
+@
+\section{Duomenų aprašymas}
+@
+
 Žemiau patektoje lentelėje matyti kiekvienas duomenų stulpelis ir jo
 pagrinės charakteristikos.
 @
@@ -56,8 +63,10 @@ Stulpeliai $veikla$ ir $grupe$ yra neįdomūs, nes jie yra
 konstantos. Taip pat galima pasakyti, jog duomenys korektiški ženklų
 prasme, t.y. nėra neigiamų reikšmių. Minimalios pajamų, valandų ir
 atlyginimo reikšmės yra 0. Lentelė taip pat parodo ir NA (praleistų)
-reikšmių kiekį kievienam rodikliui.\\
-Kadangi kiti rodikliai yra beveik konstantos ir žymi tik priklausymai
+reikšmių kiekį kievienam rodikliui.
+@
+
+Kadangi kiti rodikliai yra beveik konstantos ir žymi tik priklausymą
 vienai ar kitai grupei, tai mus labiau domina $val$ bei $atlyg$ ir
 $dsk$ priklausomybė. Tai galima pamatyti paveikslėliuose
 \ref{fig:valatlyg} ir \ref{fig:valdsk}. Paveikslėliuose galima
@@ -69,13 +78,13 @@ kitaip. Tačiau tarp atlyginimų ir valandų priklausomybė ne tokia
 aiški, lyg ir galima įžvelgti eksponentinę priklausomybę.
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{val_atlyg.pdf}
+\includegraphics[width=\textwidth]{val_atlyg.pdf}
 \caption{Kintamųjų $val$ ir $atlyg$ sklaidos diagrama}
 \label{fig:valatlyg}
 \end{figure}
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{val_dsk.pdf}
+\includegraphics[width=\textwidth]{val_dsk.pdf}
 \caption{Kintamųjų $val$ ir $dsk$ sklaidos diagrama}
 \label{fig:valdsk}
 \end{figure}
@@ -83,7 +92,7 @@ aiški, lyg ir galima įžvelgti eksponentinę priklausomybę.
 Iš viso turima 1430 įmonių priklausančių trečiai grupei, tačiau domina
 tik tos, kurių rodiklis $val$ turi bent viena reikšmę per visus metus.
 Kitu atveju, duomenys nesuteiks naudingos informacijos. Tokių įmonių
-yra 651:
+yra 651.
 @
 <<echo=FALSE, results=hide>>=
 problematic <- function(data, not){
@@ -149,17 +158,16 @@ prob <- problematic(dat, not = c("nr", "time", "veikla", "grupe",
                            "nice1", "nace2", "ter", "dsk", "atlyg", "paj"))
 empty <- subset(prob, Problem == "Empty")$nr
 @ 
-<<echo=FALSE>>=
-empty
-@ 
 <<echo=FALSE, results=hide>>=
 is.dt <- subset(dat, !(nr %in% empty))
 is.dt$t <- as.numeric(is.dt$time)
-@ 
+@
+
 Dabar pagrindinės duomenų charakteristikos atrodo taip:
 <<echo=FALSE>>=
 summary(is.dt)
 @ 
+
 Kad susidaryčiau aiškesnį vaizdą, kokie yra turimi duomenys,
 išsibrėžiau kiekvienos įmonės kiekvieno rodiklio grafikus. Jie
 patalpinti šio dokumento prisegtuke \emph{pdf} formatu, pavadinimu
@@ -168,13 +176,15 @@ trūkių. Iš pradžių pabandysiu tai ignoruoti ir sudaryti panelinių
 duomenų modelį. Taip pat paruošiu kelis duomenų masyvus, t.y. skelsiu
 duomenis pagal tuščių reikšmių kiekį bei skaidysiu į grupes. Ir
 bandysiu pagerinti rezultatus.
-
+@
 \section{Modeliavimas}
+@
+
 Kaip jau minėta, pradžioje sudarysiu paprastą panelių duomenų
 modelį. Kadangi kintamieji $nace1$ ir $nace2$ žymi tą patį tik pagal
 skirtingus reikalavimus, pasiliksiu vieną iš jų. Tegul tai būna
-$nace2$. Sudarysiu \emph{pooled} panelinių duomenų modelį
-(\R{} paketas \emph{plm})duomenims iki 2008 metų:
+$nace1$. Sudarysiu \emph{pooled} panelinių duomenų modelį
+(\R{} paketas \emph{plm}) duomenims iki 2008 metų:
 @
 <<echo=FALSE, results=hide>>=
 fm <- formula(val~t+dsk+atlyg+ter+nace1)
@@ -192,6 +202,7 @@ smm.dt1 <- summary(plm.dt1)
 <<echo=FALSE>>=
 print(smm.dt1)
 @
+
 Du kintamieji yra nereikšmingi ($ter$ ir $nace1$), tačiau
 jei jie nereikšmingi, jų dydžiai ir neturės reikšmingos įtakos
 endogeniniam kintamąjam. Tokių kintamųjų pašalinti nėra prasmės, tuo
@@ -200,7 +211,7 @@ ir paklaidų kvadratų sumos. Dar galima pastebėti, jog laiko įtaka yra
 neigiama. Būtų galima logaritmuoti $atlyg$, tačiau šis kintamasis
 turi nulinių reikšmių. Pabandžiau įtraukti teritorijos žymimuosius
 kintamuosius, tačiau rezultatai tik pablogejo. Taip pat galima bandyti įtraukti sezoninius
-žymimuosius kintamuosius. Tai ir padarysiu. Įrauksiu tris žymimuosius
+žymimuosius kintamuosius. Tai ir padarysiu. Įtrauksiu tris žymimuosius
 kintamuosius $s2$, $s3$ ir $s4$, kurie žymės antrą, trečią ir ketvirtą
 sezonus atitinkamai.
 @
@@ -231,6 +242,7 @@ smm.dt.s <- summary(plm.dt.s)
 <<echo=FALSE>>=
 print(smm.dt.s)
 @ 
+
 Matome, kad ir $s3$ yra reikšmingas. Nepašalinu ir likusių
 kintamųjų. Pabandysiu padaryti šio modelio prognozę. Prognozių
 grafikai patalpinti šio dokumento prisegtuke pavadinimu
@@ -245,14 +257,14 @@ palyginimui jos nereikšmingos. Tačiau taip pat svarbu paminėti, jog
 išprognozuotų reikšmių buvo daugiau nei realiųjų.
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{Skirtumas_zym.pdf}
+\includegraphics[width=\textwidth]{Skirtumas_zym.pdf}
 \caption{Taškais pavaizduotos visų įmonių skirtumai tarp valandų ir
   jų prognozės laike}
 \label{fig:skzym}
 \end{figure}
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{Skirtumas_zym_boxplot.pdf}
+\includegraphics[width=\textwidth]{Skirtumas_zym_boxplot.pdf}
 \caption{Skirtumų tarp valandų ir jų prognozių boxplot}
 \label{fig:skzymb}
 \end{figure}
@@ -285,6 +297,7 @@ errors.const <- subset(data.frame(const.fit[, -3], Valandos = const$val,
                        time %in% c(2008.00, 2008.25, 2008.50,
                                   2008.75))
 @ 
+
 Jau anksčiau sudarytas modelis, tik ilgesnėms duomenų laiko eilutems:
 @ 
 <<echo=FALSE, results=hide>>=
@@ -310,13 +323,15 @@ errors.long <- data.frame(forecasts.long[, -3], Valandos = subset(long,
                                                          2008.75))$val-
                                           forecasts.long$fitted))
 @
-Rezultatai tik pablogėjo. Nors įmonių skaičius mažesnis, t.y. paklaidų
+
+Nors įmonių skaičius mažesnis, paklaidų
 kvadratų sumos padidėjo.
 @
+
 Nors ir su ilgesnėmis laiko eilutėmis, duomenys vistiek turi labai
 daug tuščių reikšmių. Todėl pagalvojau, kad juos galima užpildyti
 pasitelkus \R{} f-ją \emph{na.spline}. Rezultatai pateikti
-žemiau. Kintamųjų reikšmingumas sumažėjęs ir rezultatai tik pablogėjo.
+žemiau. Šis būdas nepadėjo, todėl toliau darbą tęsiu su neužpildytais duomenimis.
 @
 <<echo=FALSE, results=hide>>=
 long.na <- as.data.frame(na.spline(subset(long, !(time %in% c(2008.00, 2008.25, 2008.50,
@@ -328,6 +343,7 @@ smm.dt.fil <- summary(plm.dt.fil)
 <<echo=FALSE>>=
 print(smm.dt.fil)
 @
+
 Taip pat tą patį modelį pritaikiau ir trumpoms laiko eilutėms:
 @
 <<echo=FALSE, results=hide>>=
@@ -339,6 +355,7 @@ smm.short <- summary(plm.short)
 <<echo=FALSE>>=
 print(smm.short)
 @ 
+
 Rezultatai taip pat nieko gero nežada. Bet ir nėra, ko norėti, kai
 laiko eilutės trumpesnės negu 4.
 @
@@ -357,14 +374,16 @@ errors.short <- data.frame(forecasts.short[, -3], Valandos = subset(short,
                                           forecasts.short$fitted))
 
 @
+
 Dar pabandysiu pagerinti ilgesniųjų laiko eilučių prognozes. Skaidysiu
 duomenis į keles grupes pagal įmonių dydį, t.y. $dsk$. Tai darysiu
-pagal histogramą \ref. Pirmąją grupę sudarys įmonės su mažesniu nei 5
+pagal histogramą \ref{fig:histdsk}. Pirmąją grupę sudarys įmonės su
+mažesniu nei 5
 darbuotojų skaičiumi, antrąją -- 5:10  darbuotojų, trečiąją -- 10:20,
 ketvirtąją -- 20:40 ir penktąją įmonės su 40 ir daugiau darbuotojų.
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{hist_dsk.pdf}
+\includegraphics[width=\textwidth]{hist_dsk.pdf}
 \caption{Ilgesniųjų laiko eilučių darbuotojų skaičiaus histograma}
 \label{fig:histdsk}
 \end{figure}
@@ -385,9 +404,10 @@ gr.model <- foreach(gr = c("gr1", "gr2", "gr3", "gr4", "gr5")) %do% {
   return(list(Summary = smm.dt, plm = plm.dt))
 }
 names(gr.model) <- c("gr1", "gr2", "gr3", "gr4", "gr5")
+gg <- llply(gr.model, function(bb) bb[1])
 @ 
 <<echo=FALSE>>=
-print(gr.model)
+print(gg)
 @ 
 <<echo=FALSE, results=hide>>=
 errors.gr <- subset(foreach(gr = c("gr1", "gr2", "gr3", "gr4", "gr5"), .combine
@@ -404,6 +424,7 @@ errors.gr <- subset(foreach(gr = c("gr1", "gr2", "gr3", "gr4", "gr5"), .combine
                                time %in% c(2008.00, 2008.25, 2008.50,
                                            2008.75))
 @ 
+
 Padariusi prognozes ir suskaičiavusi jų skirtumą nuo realių darbo
 valandų, gavau, jog skaidymas į grupes pagerino absoliutinių skirtumų
 sumą, t.y:
@@ -415,20 +436,25 @@ sum(abs(errors.gr$Skirtumas), na.rm = TRUE)
 all.sk <- rbind(errors.short, errors.const, errors.gr)
 all.sk <- sort_df(all.sk, c("nr", "time"))
 write.csv(all.sk, "Prognozes.csv", na = "", row.names = FALSE)
-@ 
+@
+
 Dar bandžiau padaryti paprastą tiesinę regresiją kiekvienai įmonei
 atskirai. Tačiau geresnių rezultatų gauti nepavyko. Galutines
 prognozes, bei skirtumus nuo realių valandų galima pamatyti šio
-dokumento prisegtuke pavadinimu \emph{Prognozes.csv}.
-
+dokumento prisegtuke pavadinimu \emph{Prognozes.xls}.
+@
 \section{Išvados}
+@
+
 Labai gerų rezultatų gauti nepavyko. To priežąstys gali būti:
 \begin{itemize}
   \item blogai sudarytas modelis
   \item per didelė įmonių įvairovė
   \item pasirinkti ne tie metodai
-  \item ir k.t.
+  \item skaidyta ne teisingai ar į perdideles grupes
 \end{itemize}
-
+@
+Tačiau lyginant procentinį paklaidų dydį su realiais duomenimis,
+prognozė pakankamai gerai atitinka realybę.
 @
 \end{document}

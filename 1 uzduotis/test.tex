@@ -17,6 +17,7 @@
 \usepackage{graphicx}
 \usepackage{lmodern}
 \usepackage{bm}
+\usepackage{epsfig}
 
 \newcommand{\R}{R}
 
@@ -31,11 +32,13 @@ juos pertvarkiau formatu, kuris būtų tinkamas panelinių duomenų
 analizei su \R{}, t.y. dabar duomenis sudaro 11 stulpelių:
 \begin{verbatim}
   nr, time, veikla, grupe, paj, dsk, val, atlyg, ter, nace1, nace2
-\end{verbatim}  
+\end{verbatim}
+
 Taigi atsirado papildomas stulpelis su data - $time$, kuriame skaičius
 po kablelio žymi ketvirtį, t.y. x.00 žymi pirmą x metų ketvirtį, x.25
 -- antrą, x.50 -- trečią ir x.75 -- ketvirtą.
-\section{Duomenų aprašymas ir paruošimas}
+\section{Duomenų aprašymas}
+
 Žemiau patektoje lentelėje matyti kiekvienas duomenų stulpelis ir jo
 pagrinės charakteristikos.
 \begin{Schunk}
@@ -71,8 +74,9 @@ Stulpeliai $veikla$ ir $grupe$ yra neįdomūs, nes jie yra
 konstantos. Taip pat galima pasakyti, jog duomenys korektiški ženklų
 prasme, t.y. nėra neigiamų reikšmių. Minimalios pajamų, valandų ir
 atlyginimo reikšmės yra 0. Lentelė taip pat parodo ir NA (praleistų)
-reikšmių kiekį kievienam rodikliui.\\
-Kadangi kiti rodikliai yra beveik konstantos ir žymi tik priklausymai
+reikšmių kiekį kievienam rodikliui.
+
+Kadangi kiti rodikliai yra beveik konstantos ir žymi tik priklausymą
 vienai ar kitai grupei, tai mus labiau domina $val$ bei $atlyg$ ir
 $dsk$ priklausomybė. Tai galima pamatyti paveikslėliuose
 \ref{fig:valatlyg} ir \ref{fig:valdsk}. Paveikslėliuose galima
@@ -84,13 +88,13 @@ kitaip. Tačiau tarp atlyginimų ir valandų priklausomybė ne tokia
 aiški, lyg ir galima įžvelgti eksponentinę priklausomybę.
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{val_atlyg.pdf}
+\includegraphics[width=\textwidth]{val_atlyg.pdf}
 \caption{Kintamųjų $val$ ir $atlyg$ sklaidos diagrama}
 \label{fig:valatlyg}
 \end{figure}
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{val_dsk.pdf}
+\includegraphics[width=\textwidth]{val_dsk.pdf}
 \caption{Kintamųjų $val$ ir $dsk$ sklaidos diagrama}
 \label{fig:valdsk}
 \end{figure}
@@ -98,66 +102,8 @@ aiški, lyg ir galima įžvelgti eksponentinę priklausomybę.
 Iš viso turima 1430 įmonių priklausančių trečiai grupei, tačiau domina
 tik tos, kurių rodiklis $val$ turi bent viena reikšmę per visus metus.
 Kitu atveju, duomenys nesuteiks naudingos informacijos. Tokių įmonių
-yra 651:
-\begin{Schunk}
-\begin{Soutput}
-  [1]   530   544   552   570   571   574   577   580   591   607   629   683
- [13]   729   743   748   750   757   807   815   875   889   949  1088  1099
- [25]  1128  1193  1195  1208  1209  1241  1264  1272  1291  1306  1307  1337
- [37]  1346  1405  1433  1489  1514  1560  1590  1596  1602  1655  1661  1668
- [49]  1672  1687  1708  1765  1794  1825  1845  1872  1887  1896  1901  1918
- [61]  1941  1944  1945  1947  1966  1967  2095  2113  2116  2137  2145  2153
- [73]  2156  2157  2174  2177  2189  2200  2215  2249  2254  2256  2259  2266
- [85]  2267  2269  2277  2280  2283  2284  2294  2327  2342  2394  2440  2468
- [97]  2491  2508  2530  2596  2697  2707  2708  2725  2727  2799  2813  2867
-[109]  2869  2911  2936  2952  2955  2964  2972  2973  2976  2982  2989  3049
-[121]  3139  3165  3181  3200  3203  3206  3208  3230  3305  3313  3351  3361
-[133]  3362  3366  3368  3374  3375  3398  3401  3440  3469  3528  3585  3607
-[145]  3632  3649  3657  3660  3670  3681  3682  3683  3685  3687  3690  3693
-[157]  3696  3731  3759  3761  3789  3795  3830  3896  3942  3972  3978  3988
-[169]  3995  4004  4006  4009  4036  4040  4055  4062  4063  4064  4065  4078
-[181]  4085  4090  4091  4099  4100  4101  4108  4112  4119  4122  4152  4190
-[193]  4229  4243  4273  4325  4455  4481  4483  4517  4533  4564  4574  4591
-[205]  4603  4636  4639  4646  4647  4648  4650  4651  4652  4654  4681  4686
-[217]  4687  4708  4722  4734  4735  4737  4741  4747  4760  4761  4763  4765
-[229]  4775  4776  4779  4791  4800  4807  4818  4820  4824  4847  4853  4867
-[241]  4870  4873  4886  4889  4892  4894  4896  4899  4901  4904  4906  4908
-[253]  4917  4918  4919  4924  4925  4947  4963  4968  4973  4979  5029  5052
-[265]  5053  5057  5060  5116  5118  5151  5162  5169  5175  5212  5224  5228
-[277]  5280  5290  5338  5400  5411  5428  5442  5457  5477  5501  5553  5573
-[289]  5587  5609  5644  5645  5660  5709  5716  5736  5757  5760  5766  5778
-[301]  5802  5825  5840  5845  5896  5903  5904  5971  5992  6012  6024  6025
-[313]  6044  6050  6053  6061  6062  6074  6077  6080  6093  6094  6099  6101
-[325]  6103  6139  6148  6151  6152  6160  6163  6167  6168  6170  6175  6178
-[337]  6179  6182  6190  6200  6201  6206  6209  6214  6218  6245  6248  6251
-[349]  6255  6270  6282  6285  6316  6318  6325  6326  6334  6337  6338  6348
-[361]  6355  6361  6385  6390  6411  6424  6438  6445  6459  6462  6464  6486
-[373]  6534  6539  6542  6548  6554  6570  6571  6592  6641  6653  6746  6768
-[385]  6784  6847  6907  6914  7056  7074  7090  7123  7139  7199  7245  7265
-[397]  7357  7385  7425  7455  7509  7510  7529  7688  7761  7767  7838  7845
-[409]  7868  7887  7889  7890  7954  7955  8017  8020  8041  8068  8073  8085
-[421]  8105  8120  8136  8143  8145  8148  8152  8162  8183  8224  8240  8246
-[433]  8266  8302  8361  8409  8411  8442  8475  8477  8483  8485  8544  8554
-[445]  8588  8594  8605  8643  8694  8700  8733  8734  8740  8742  8766  8769
-[457]  8787  8794  8853  8860  8864  8869  8896  8917  8937  8947  8962  8968
-[469]  8974  8975  8979  9001  9002  9006  9007  9029  9034  9049  9074  9079
-[481]  9087  9088  9089  9090  9096  9103  9112  9114  9120  9122  9129  9145
-[493]  9147  9152  9153  9158  9164  9178  9182  9184  9185  9186  9191  9193
-[505]  9195  9202  9213  9214  9216  9245  9250  9257  9262  9263  9266  9267
-[517]  9277  9278  9281  9282  9284  9310  9336  9341  9356  9391  9400  9413
-[529]  9414  9417  9421  9427  9428  9431  9435  9450  9480  9491  9492  9495
-[541]  9501  9516  9519  9541  9542  9543  9547  9554  9578  9598  9610  9628
-[553]  9630  9631  9674  9683  9684  9716  9718  9731  9733  9753  9754  9760
-[565]  9774  9775  9782  9787  9799  9804  9856  9868  9870  9893  9908 10008
-[577] 10017 10051 10057 10092 10122 10149 10166 10167 10204 10206 10263 10265
-[589] 10285 10311 10320 10350 10381 10398 10416 10440 10465 10477 10492 10535
-[601] 10565 10567 10597 10629 10650 10668 10687 10694 10732 10765 10787 10838
-[613] 10842 10855 10904 10939 10973 10992 10997 11016 11025 11065 11089 11160
-[625] 11167 11283 11374 11382 11409 11438 11452 11468 11489 11612 11707 11720
-[637] 11730 11760 11795 11797 11812 11819 11824 11829 11839 11853 11855 11859
-[649] 11880 11931 11939
-\end{Soutput}
-\end{Schunk}
+yra 651.
+
 Dabar pagrindinės duomenų charakteristikos atrodo taip:
 \begin{Schunk}
 \begin{Soutput}
@@ -187,6 +133,7 @@ Dabar pagrindinės duomenų charakteristikos atrodo taip:
  NA's   :   188   NA's   :   188                 
 \end{Soutput}
 \end{Schunk}
+
 Kad susidaryčiau aiškesnį vaizdą, kokie yra turimi duomenys,
 išsibrėžiau kiekvienos įmonės kiekvieno rodiklio grafikus. Jie
 patalpinti šio dokumento prisegtuke \emph{pdf} formatu, pavadinimu
@@ -195,13 +142,13 @@ trūkių. Iš pradžių pabandysiu tai ignoruoti ir sudaryti panelinių
 duomenų modelį. Taip pat paruošiu kelis duomenų masyvus, t.y. skelsiu
 duomenis pagal tuščių reikšmių kiekį bei skaidysiu į grupes. Ir
 bandysiu pagerinti rezultatus.
-
 \section{Modeliavimas}
+
 Kaip jau minėta, pradžioje sudarysiu paprastą panelių duomenų
 modelį. Kadangi kintamieji $nace1$ ir $nace2$ žymi tą patį tik pagal
 skirtingus reikalavimus, pasiliksiu vieną iš jų. Tegul tai būna
-$nace2$. Sudarysiu \emph{pooled} panelinių duomenų modelį
-(\R{} paketas \emph{plm})duomenims iki 2008 metų:
+$nace1$. Sudarysiu \emph{pooled} panelinių duomenų modelį
+(\R{} paketas \emph{plm}) duomenims iki 2008 metų:
 \begin{Schunk}
 \begin{Soutput}
 val ~ t + dsk + atlyg + ter + nace1
@@ -238,6 +185,7 @@ R-Squared      :  0.95938
 F-statistic: 22184.7 on 5 and 4696 DF, p-value: < 2.22e-16
 \end{Soutput}
 \end{Schunk}
+
 Du kintamieji yra nereikšmingi ($ter$ ir $nace1$), tačiau
 jei jie nereikšmingi, jų dydžiai ir neturės reikšmingos įtakos
 endogeniniam kintamąjam. Tokių kintamųjų pašalinti nėra prasmės, tuo
@@ -246,7 +194,7 @@ ir paklaidų kvadratų sumos. Dar galima pastebėti, jog laiko įtaka yra
 neigiama. Būtų galima logaritmuoti $atlyg$, tačiau šis kintamasis
 turi nulinių reikšmių. Pabandžiau įtraukti teritorijos žymimuosius
 kintamuosius, tačiau rezultatai tik pablogejo. Taip pat galima bandyti įtraukti sezoninius
-žymimuosius kintamuosius. Tai ir padarysiu. Įrauksiu tris žymimuosius
+žymimuosius kintamuosius. Tai ir padarysiu. Įtrauksiu tris žymimuosius
 kintamuosius $s2$, $s3$ ir $s4$, kurie žymės antrą, trečią ir ketvirtą
 sezonus atitinkamai.
 \begin{Schunk}
@@ -289,6 +237,7 @@ R-Squared      :  0.95956
 F-statistic: 13918.3 on 8 and 4693 DF, p-value: < 2.22e-16
 \end{Soutput}
 \end{Schunk}
+
 Matome, kad ir $s3$ yra reikšmingas. Nepašalinu ir likusių
 kintamųjų. Pabandysiu padaryti šio modelio prognozę. Prognozių
 grafikai patalpinti šio dokumento prisegtuke pavadinimu
@@ -303,14 +252,14 @@ palyginimui jos nereikšmingos. Tačiau taip pat svarbu paminėti, jog
 išprognozuotų reikšmių buvo daugiau nei realiųjų.
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{Skirtumas_zym.pdf}
+\includegraphics[width=\textwidth]{Skirtumas_zym.pdf}
 \caption{Taškais pavaizduotos visų įmonių skirtumai tarp valandų ir
   jų prognozės laike}
 \label{fig:skzym}
 \end{figure}
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{Skirtumas_zym_boxplot.pdf}
+\includegraphics[width=\textwidth]{Skirtumas_zym_boxplot.pdf}
 \caption{Skirtumų tarp valandų ir jų prognozių boxplot}
 \label{fig:skzymb}
 \end{figure}
@@ -329,6 +278,7 @@ yra 9:
 [1]  1368  1574  1735  7050  7537  9331  9836 10632 11429
 \end{Soutput}
 \end{Schunk}
+
 Jau anksčiau sudarytas modelis, tik ilgesnėms duomenų laiko eilutems:
 \begin{Schunk}
 \begin{Soutput}
@@ -364,12 +314,14 @@ R-Squared      :  0.95654
 F-statistic: 16903.1 on 8 and 6144 DF, p-value: < 2.22e-16
 \end{Soutput}
 \end{Schunk}
-Rezultatai tik pablogėjo. Nors įmonių skaičius mažesnis, t.y. paklaidų
+
+Nors įmonių skaičius mažesnis, paklaidų
 kvadratų sumos padidėjo.
+
 Nors ir su ilgesnėmis laiko eilutėmis, duomenys vistiek turi labai
 daug tuščių reikšmių. Todėl pagalvojau, kad juos galima užpildyti
 pasitelkus \R{} f-ją \emph{na.spline}. Rezultatai pateikti
-žemiau. Kintamųjų reikšmingumas sumažėjęs ir rezultatai tik pablogėjo.
+žemiau. Šis būdas nepadėjo, todėl toliau darbą tęsiu su neužpildytais duomenimis.
 \begin{Schunk}
 \begin{Soutput}
 Oneway (individual) effect Pooling Model
@@ -404,6 +356,7 @@ R-Squared      :  0.70037
 F-statistic: 2532.35 on 8 and 8667 DF, p-value: < 2.22e-16
 \end{Soutput}
 \end{Schunk}
+
 Taip pat tą patį modelį pritaikiau ir trumpoms laiko eilutėms:
 \begin{Schunk}
 \begin{Soutput}
@@ -439,16 +392,19 @@ R-Squared      :  0.85244
 F-statistic: 149.472 on 8 and 207 DF, p-value: < 2.22e-16
 \end{Soutput}
 \end{Schunk}
+
 Rezultatai taip pat nieko gero nežada. Bet ir nėra, ko norėti, kai
 laiko eilutės trumpesnės negu 4.
+
 Dar pabandysiu pagerinti ilgesniųjų laiko eilučių prognozes. Skaidysiu
 duomenis į keles grupes pagal įmonių dydį, t.y. $dsk$. Tai darysiu
-pagal histogramą \ref. Pirmąją grupę sudarys įmonės su mažesniu nei 5
+pagal histogramą \ref{fig:histdsk}. Pirmąją grupę sudarys įmonės su
+mažesniu nei 5
 darbuotojų skaičiumi, antrąją -- 5:10  darbuotojų, trečiąją -- 10:20,
 ketvirtąją -- 20:40 ir penktąją įmonės su 40 ir daugiau darbuotojų.
 
 \begin{figure}[here]
-\includegraphics[height=8.5cm]{hist_dsk.pdf}
+\includegraphics[width=\textwidth]{hist_dsk.pdf}
 \caption{Ilgesniųjų laiko eilučių darbuotojų skaičiaus histograma}
 \label{fig:histdsk}
 \end{figure}
@@ -487,18 +443,6 @@ R-Squared      :  0.6708
       Adj. R-Squared :  0.6685 
 F-statistic: 666.575 on 8 and 2617 DF, p-value: < 2.22e-16
 
-$gr1$plm
-
-Model Formula: val ~ t + s2 + s3 + s4 + dsk + atlyg + ter + nace1
-<environment: 0x0595e908>
-
-Coefficients:
-(Intercept)           t          s2          s3          s4         dsk 
- 9.3500e+04 -4.6940e+01  5.5413e+00  1.6915e+01  2.2854e+01  3.3360e+02 
-      atlyg         ter       nace1 
- 7.3894e-03  4.7941e-01  6.7825e-04 
-
-
 
 $gr2
 $gr2$Summary
@@ -532,18 +476,6 @@ Residual Sum of Squares: 1.209e+09
 R-Squared      :  0.59414 
       Adj. R-Squared :  0.59078 
 F-statistic: 289.489 on 8 and 1582 DF, p-value: < 2.22e-16
-
-$gr2$plm
-
-Model Formula: val ~ t + s2 + s3 + s4 + dsk + atlyg + ter + nace1
-<environment: 0x0940d5c8>
-
-Coefficients:
-(Intercept)           t          s2          s3          s4         dsk 
- 1.1930e+05 -5.8900e+01 -7.3866e+01 -1.0345e+02 -4.7733e+01  3.4963e+02 
-      atlyg         ter       nace1 
- 4.2306e-03 -1.3116e-01 -1.7381e-03 
-
 
 
 $gr3
@@ -579,18 +511,6 @@ R-Squared      :  0.70975
       Adj. R-Squared :  0.70416 
 F-statistic: 346.924 on 8 and 1135 DF, p-value: < 2.22e-16
 
-$gr3$plm
-
-Model Formula: val ~ t + s2 + s3 + s4 + dsk + atlyg + ter + nace1
-<environment: 0x0504e36c>
-
-Coefficients:
-(Intercept)           t          s2          s3          s4         dsk 
- 3.9987e+05 -2.0069e+02 -2.3887e+01 -9.3326e+01  1.1523e+02  3.6515e+02 
-      atlyg         ter       nace1 
- 3.6259e-03 -7.8089e+00  4.0885e-03 
-
-
 
 $gr4
 $gr4$Summary
@@ -625,18 +545,6 @@ R-Squared      :  0.76295
       Adj. R-Squared :  0.75223 
 F-statistic: 253.866 on 8 and 631 DF, p-value: < 2.22e-16
 
-$gr4$plm
-
-Model Formula: val ~ t + s2 + s3 + s4 + dsk + atlyg + ter + nace1
-<environment: 0x029f4148>
-
-Coefficients:
-(Intercept)           t          s2          s3          s4         dsk 
- 1.7173e+05 -8.7030e+01 -2.4933e+02 -5.0674e+02  5.4017e+02  4.2566e+02 
-      atlyg         ter       nace1 
- 1.5370e-03  1.4305e+01  2.9507e-03 
-
-
 
 $gr5
 $gr5$Summary
@@ -670,19 +578,9 @@ Residual Sum of Squares: 3273400000
 R-Squared      :  0.91746 
       Adj. R-Squared :  0.86313 
 F-statistic: 198.676 on 8 and 143 DF, p-value: < 2.22e-16
-
-$gr5$plm
-
-Model Formula: val ~ t + s2 + s3 + s4 + dsk + atlyg + ter + nace1
-<environment: 0x04fb1050>
-
-Coefficients:
-(Intercept)           t          s2          s3          s4         dsk 
- 8.9031e+05 -5.3493e+02 -1.4006e+03 -8.4022e+02  2.7847e+02  4.1116e+02 
-      atlyg         ter       nace1 
- 6.0684e-03 -2.1521e+02  2.6250e-01 
 \end{Soutput}
 \end{Schunk}
+
 Padariusi prognozes ir suskaičiavusi jų skirtumą nuo realių darbo
 valandų, gavau, jog skaidymas į grupes pagerino absoliutinių skirtumų
 sumą, t.y:
@@ -700,18 +598,20 @@ sumą, t.y:
 [1] 993769.5
 \end{Soutput}
 \end{Schunk}
+
 Dar bandžiau padaryti paprastą tiesinę regresiją kiekvienai įmonei
 atskirai. Tačiau geresnių rezultatų gauti nepavyko. Galutines
 prognozes, bei skirtumus nuo realių valandų galima pamatyti šio
-dokumento prisegtuke pavadinimu \emph{Prognozes.csv}.
-
+dokumento prisegtuke pavadinimu \emph{Prognozes.xls}.
 \section{Išvados}
+
 Labai gerų rezultatų gauti nepavyko. To priežąstys gali būti:
 \begin{itemize}
   \item blogai sudarytas modelis
   \item per didelė įmonių įvairovė
   \item pasirinkti ne tie metodai
-  \item ir k.t.
+  \item skaidyta ne teisingai ar į perdideles grupes
 \end{itemize}
-
+Tačiau lyginant procentinį paklaidų dydį su realiais duomenimis,
+prognozė pakankamai gerai atitinka realybę.
 \end{document}

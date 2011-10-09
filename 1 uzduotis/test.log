@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.3-1.40.12 (MiKTeX 2.9) (preloaded format=pdflatex 2011.10.7)  8 OCT 2011 21:59
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (MiKTeX 2.9) (preloaded format=pdflatex 2011.10.7)  9 OCT 2011 13:27
 entering extended mode
 **C:/Users/Mano/Documents/univeras/5*kursas/ekonometrija/1*uzduotis/test.tex
 ("C:/Users/Mano/Documents/univeras/5 kursas/ekonometrija/1 uzduotis/test.tex"
@@ -387,6 +387,11 @@ Package: bm 2004/02/26 v1.1c Bold Symbol Support (DPC/FMi)
 LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 138.
 LaTeX Info: Redefining \bm on input line 204.
 )
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\epsfig.sty"
+Package: epsfig 1999/02/16 v1.7a (e)psfig emulation (SPQR)
+\epsfxsize=\dimen120
+\epsfysize=\dimen121
+)
 ("C:\Users\Mano\Documents\univeras\5 kursas\ekonometrija\1 uzduotis\Sweave.sty"
 Package: Sweave 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\fancyvrb\fancyvrb.sty"
@@ -487,29 +492,29 @@ Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 339.
 Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 340.
 )))
 ("C:\Users\Mano\Documents\univeras\5 kursas\ekonometrija\1 uzduotis\test.aux")
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for L7x/lmr/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 24.
-LaTeX Font Info:    ... okay on input line 24.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 24.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 24.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for L7x/lmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 25.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 25.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
 File: ts1cmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 24.
+LaTeX Font Info:    ... okay on input line 25.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\unicode\ucsencs.def"
 File: ucsencs.def 2003/11/29 Fixes to fontencodings LGR, T3
@@ -517,19 +522,19 @@ File: ucsencs.def 2003/11/29 Fixes to fontencodings LGR, T3
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count120
-\scratchdimen=\dimen120
+\scratchdimen=\dimen122
 \scratchbox=\box32
 \nofMPsegments=\count121
 \nofMParguments=\count122
 \everyMPshowfont=\toks30
 \MPscratchCnt=\count123
-\MPscratchDim=\dimen121
+\MPscratchDim=\dimen123
 \MPnumerator=\count124
 \makeMPintoPDFobject=\count125
 \everyMPtoPDFconversion=\toks31
 )
 \AtBeginShipoutBox=\box33
-Package hyperref Info: Link coloring OFF on input line 24.
+Package hyperref Info: Link coloring OFF on input line 25.
  ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\hyperref\nameref.sty"
 Package: nameref 2010/04/30 v2.40 Cross-referencing by name of section
 
@@ -538,9 +543,9 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count126
 )
-LaTeX Info: Redefining \ref on input line 24.
-LaTeX Info: Redefining \pageref on input line 24.
-LaTeX Info: Redefining \nameref on input line 24.
+LaTeX Info: Redefining \ref on input line 25.
+LaTeX Info: Redefining \pageref on input line 25.
+LaTeX Info: Redefining \nameref on input line 25.
 
 ("C:\Users\Mano\Documents\univeras\5 kursas\ekonometrija\1 uzduotis\test.out")
 ("C:\Users\Mano\Documents\univeras\5 kursas\ekonometrija\1 uzduotis\test.out")
@@ -549,66 +554,66 @@ LaTeX Info: Redefining \nameref on input line 24.
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\unicode\data\uni-1.def"
 File: uni-1.def 2004/10/17 UCS: Unicode data U+0100..U+01FF
 )
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 27.
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 28.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\ot1lmr.fd"
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 27.
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 28.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\omllmm.fd"
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 27.
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 28.
 
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\omslmsy.fd"
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 27.
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 28.
 
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\omxlmex.fd"
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 27.
+(Font)              <12> on input line 28.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 27.
+(Font)              <8> on input line 28.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 27.
-LaTeX Font Info:    Try loading font information for U+msa on input line 27.
+(Font)              <6> on input line 28.
+LaTeX Font Info:    Try loading font information for U+msa on input line 28.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2009/06/22 v3.00 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 27.
+LaTeX Font Info:    Try loading font information for U+msb on input line 28.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for T1+lmtt on input line 32.
+LaTeX Font Info:    Try loading font information for T1+lmtt on input line 33.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\t1lmtt.fd"
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-Overfull \hbox (1.499pt too wide) in paragraph at lines 34--34
+Overfull \hbox (1.499pt too wide) in paragraph at lines 35--35
 []  \T1/lmtt/m/n/10 nr, time, veikla, grupe, paj, dsk, val, atlyg, ter, nace1, 
 nace2[] 
  []
 
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 35.
+(Font)              <10> on input line 37.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 35.
+(Font)              <7> on input line 37.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 35.
-LaTeX Font Info:    Try loading font information for L7x+lmtt on input line 42.
+(Font)              <5> on input line 37.
+LaTeX Font Info:    Try loading font information for L7x+lmtt on input line 45.
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\l7xlmtt.fd"
 File: l7xlmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 50.
+LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 53.
 
 
 ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\lm\ts1lmtt.fd"
@@ -619,91 +624,83 @@ File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 <val_atlyg.pdf, id=31, 722.7pt x 361.35pt>
 File: val_atlyg.pdf Graphic file (type pdf)
  <use val_atlyg.pdf>
-Package pdftex.def Info: val_atlyg.pdf used on input line 87.
-(pdftex.def)             Requested size: 275.99626pt x 241.84961pt.
+Package pdftex.def Info: val_atlyg.pdf used on input line 91.
+(pdftex.def)             Requested size: 345.0pt x 172.49767pt.
 
 <val_dsk.pdf, id=32, 722.7pt x 361.35pt>
 File: val_dsk.pdf Graphic file (type pdf)
  <use val_dsk.pdf>
-Package pdftex.def Info: val_dsk.pdf used on input line 93.
-(pdftex.def)             Requested size: 275.99626pt x 241.84961pt.
+Package pdftex.def Info: val_dsk.pdf used on input line 97.
+(pdftex.def)             Requested size: 345.0pt x 172.49767pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [2 <C:/Users/Mano/Documents/univeras/5 kursas/ekonometrija/1 uzduotis/val_atlyg
 .pdf>] [3 <C:/Users/Mano/Documents/univeras/5 kursas/ekonometrija/1 uzduotis/va
-l_dsk.pdf>] [4] [5] <Skirtumas_zym.pdf, id=67, 722.7pt x 361.35pt>
+l_dsk.pdf>] [4] <Skirtumas_zym.pdf, id=63, 722.7pt x 361.35pt>
 File: Skirtumas_zym.pdf Graphic file (type pdf)
 
 <use Skirtumas_zym.pdf>
-Package pdftex.def Info: Skirtumas_zym.pdf used on input line 306.
-(pdftex.def)             Requested size: 275.99626pt x 241.84961pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<Skirtumas_zym_boxplot.pdf, id=68, 722.7pt x 361.35pt>
+Package pdftex.def Info: Skirtumas_zym.pdf used on input line 255.
+(pdftex.def)             Requested size: 345.0pt x 172.49767pt.
+ <Skirtumas_zym_boxplot.pdf, id=64, 722.7pt x 361.35pt>
 File: Skirtumas_zym_boxplot.pdf Graphic file (type pdf)
 
 <use Skirtumas_zym_boxplot.pdf>
-Package pdftex.def Info: Skirtumas_zym_boxplot.pdf used on input line 313.
-(pdftex.def)             Requested size: 275.99626pt x 241.84961pt.
+Package pdftex.def Info: Skirtumas_zym_boxplot.pdf used on input line 262.
+(pdftex.def)             Requested size: 345.0pt x 172.49767pt.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[6] [7 <C:/Users/Mano/Documents/univeras/5 kursas/ekonometrija/1 uzduotis/Skirt
-umas_zym.pdf>] [8 <C:/Users/Mano/Documents/univeras/5 kursas/ekonometrija/1 uzd
-uotis/Skirtumas_zym_boxplot.pdf>]
-
-LaTeX Warning: Reference `.' on page 9 undefined on input line 446.
-
-[9] <hist_dsk.pdf, id=100, 722.7pt x 361.35pt>
+[5 <C:/Users/Mano/Documents/univeras/5 kursas/ekonometrija/1 uzduotis/Skirtumas
+_zym.pdf>] [6 <C:/Users/Mano/Documents/univeras/5 kursas/ekonometrija/1 uzduoti
+s/Skirtumas_zym_boxplot.pdf>] [7] <hist_dsk.pdf, id=93, 722.7pt x 361.35pt>
 File: hist_dsk.pdf Graphic file (type pdf)
- <use hist_dsk.pdf>
-Package pdftex.def Info: hist_dsk.pdf used on input line 451.
-(pdftex.def)             Requested size: 275.99626pt x 241.84961pt.
- [10 <C:/Users/Mano/Documents/univeras/5 kursas/ekonometrija/1 uzduotis/hist_ds
-k.pdf>]
-[11] [12] [13] [14]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 717.
- [15]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 717.
+
+<use hist_dsk.pdf>
+Package pdftex.def Info: hist_dsk.pdf used on input line 407.
+(pdftex.def)             Requested size: 345.0pt x 172.49767pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[8] [9 <C:/Users/Mano/Documents/univeras/5 kursas/ekonometrija/1 uzduotis/hist_
+dsk.pdf>] [10] [11]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 617.
+ [12]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 617.
 
 ("C:\Users\Mano\Documents\univeras\5 kursas\ekonometrija\1 uzduotis\test.aux")
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 717.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 717.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 617.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 617.
 Package rerunfilecheck Info: File `test.out' has not changed.
-(rerunfilecheck)             Checksum: 41903BB1ACF2DEE62829899272A808D0;167.
-
-
-LaTeX Warning: There were undefined references.
-
+(rerunfilecheck)             Checksum: EBF5FBA9BFB3290154D9523D8A4D265F;150.
  ) 
 Here is how much of TeX's memory you used:
- 8688 strings out of 494045
- 124097 string characters out of 3145972
- 206058 words of memory out of 3000000
- 11766 multiletter control sequences out of 15000+200000
- 70121 words of font info for 75 fonts, out of 3000000 for 9000
+ 8713 strings out of 494045
+ 124477 string characters out of 3145972
+ 203501 words of memory out of 3000000
+ 11792 multiletter control sequences out of 15000+200000
+ 67126 words of font info for 74 fonts, out of 3000000 for 9000
  715 hyphenation exceptions out of 8191
  34i,7n,38p,398b,595s stack positions out of 5000i,500n,10000p,200000b,50000s
 {C:/Program Files (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm-l7x.enc}{C:/Program 
-Files (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm-ec.enc}{C:/Program Files (x86)/MiK
-TeX 2.9/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files (x86)/MiKTeX 2.9/fonts/e
+Files (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files (x86)/MiK
+TeX 2.9/fonts/enc/dvips/lm/lm-ec.enc}{C:/Program Files (x86)/MiKTeX 2.9/fonts/e
 nc/dvips/lm/lm-ts1.enc}{C:/Program Files (x86)/MiKTeX 2.9/fonts/enc/dvips/lm/lm
--mathit.enc}<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmbx10.pfb
-><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmbx12.pfb><C:/Progra
-m Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmmi10.pfb><C:/Program Files (x8
-6)/MiKTeX 2.9/fonts/type1/public/lm/lmr10.pfb><C:/Program Files (x86)/MiKTeX 2.
-9/fonts/type1/public/lm/lmr12.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type
-1/public/lm/lmr17.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/
-lmri10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmtt10.pfb>
-<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmtto10.pfb>
-Output written on test.pdf (15 pages, 1263948 bytes).
+-mathit.enc}<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmbx12.pfb
+><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmmi10.pfb><C:/Progra
+m Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmr10.pfb><C:/Program Files (x86
+)/MiKTeX 2.9/fonts/type1/public/lm/lmr12.pfb><C:/Program Files (x86)/MiKTeX 2.9
+/fonts/type1/public/lm/lmr17.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1
+/public/lm/lmri10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/
+lmtt10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/lm/lmtto10.pfb
+>
+Output written on test.pdf (12 pages, 1238561 bytes).
 PDF statistics:
- 179 PDF objects out of 1000 (max. 8388607)
- 24 named destinations out of 1000 (max. 500000)
+ 163 PDF objects out of 1000 (max. 8388607)
+ 21 named destinations out of 1000 (max. 500000)
  50 words of extra memory for PDF output out of 10000 (max. 10000000)
 
